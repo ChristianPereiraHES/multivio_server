@@ -1,8 +1,20 @@
-#!/usr/bin/env python
-from distutils.core import setup, Extension
-
+#!/usr/bin/env python3
+from setuptools import setup, Extension
+import os
 poppler_install_path = '/usr/local'
 import multivio
+
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    print('You need to install cython first - sudo pip install cython', file=sys.stderr)
+    sys.exit(1)
+
+poppler_ext = Extension('multivio.mypoppler', ['multivio/poppler/mypoppler.pyx'],
+                        language='c++',
+                        extra_compile_args=['-I%s/include/poppler' % poppler_install_path],
+                        extra_link_args=['-lpoppler'],
+                        )
 
 setup(
     name='multivio',
@@ -11,26 +23,21 @@ setup(
     long_description='''Multivio is a project...''',
     license=multivio.__license__,
     url='http://www.multivio.org',
-    ext_modules=[Extension('multivio/poppler/_mypoppler', ['multivio/poppler/mypoppler.i'],
-        swig_opts=['-c++', '-modern', '-I%s/include' % poppler_install_path],
-        extra_compile_args=['-I%s/include/poppler' % poppler_install_path],
-        extra_link_args=['-lpoppler'])], 
-    py_modules=['multivio.poppler.mypoppler'],
+    ext_modules=cythonize([poppler_ext]),
     packages=[
-    'multivio'
+        'multivio'
     ],
     scripts=[
-    'tools/multivio_server.py', 'tools/mvo_config_example.py'
+        'tools/multivio_server.py', 'tools/mvo_config_example.py'
     ],
     keywords=['multivio'],
+    package_data={'multivio.mypoppler': ['*.so.*', 'multivio.mypoppler/*.so.*']},
     classifiers=[
-    'Development Status :: Beta',
-    'Environment :: Console',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: Internal',
+        'Development Status :: Beta',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: Internal',
     ],
-    install_requires=[
-        "Pillow>=3.0.0"
-    ]
+    install_requires=[]
 )
