@@ -2,22 +2,22 @@
 # -*- coding: utf-8 -*-
 """Multivio HTTP requests dispatcher."""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
 
-#---------------------------- Modules -----------------------------------------
+# ---------------------------- Modules -----------------------------------------
 
 # import of standard modules
 import re
-import sys 
+import sys
 from optparse import OptionParser
 if sys.version_info < (2, 6):
     import simplejson as json
@@ -25,7 +25,7 @@ else:
     import json
 
 # third party modules
-import logger
+import multivio.logger
 import logging
 #import mvo_parser
 import processor_app
@@ -40,20 +40,20 @@ from web_app import ApplicationError
 
 class DispatcherApp(WebApplication):
     """ Dispach http request to several applications given the URI.
-    
+
         This is the entry point of the server application. This class is
         responsible to call applications given the URI of the HTTP request.
     """
 
     def __init__(self):
-        "Simple constructor." 
-        
+        "Simple constructor."
+
         WebApplication.__init__(self)
 
-        #application configuration
+        # application configuration
         self._apps = {}
 
-        #server applications
+        # server applications
         self._apps['.*?/log/post'] = logger.LoggerApp()
         self._apps['.*?/version'] = version_app.VersionApp()
         self._apps['.*?/get.*?'] = \
@@ -64,7 +64,7 @@ class DispatcherApp(WebApplication):
             WebProcessorApp()
         self.usage = """<br><h1>Welcome to the multivio server.</h1><br>"""
         self.logger = logging.getLogger(MVOConfig.Logger.name+".Dispatcher")
-        
+
     def __call__(self, environ, start_response):
         """Main method to dispatch HTTP requests."""
 
@@ -84,41 +84,41 @@ class DispatcherApp(WebApplication):
                 try:
                     return self._apps[k](environ, start_response)
                 except (ApplicationError.PermissionDenied,
-                    ApplicationError.UnableToRetrieveRemoteDocument,
-                    ApplicationError.UnsupportedFormat,
-                    ApplicationError.InvalidArgument,
-                    ApplicationError.HttpMethodNotAllowed), exception:
+                        ApplicationError.UnableToRetrieveRemoteDocument,
+                        ApplicationError.UnsupportedFormat,
+                        ApplicationError.InvalidArgument,
+                        ApplicationError.HttpMethodNotAllowed) as exception:
                     start_response(exception.http_code, [('content-type',
-                           'application/json')])
+                                                          'application/json')])
                     self.logger.error("Exception: %s occurs with message: %s" %
-                        (type(exception).__name__, str(exception)))
+                                      (type(exception).__name__, str(exception)))
                     result = {
                         'err_name': type(exception).__name__,
-                        'err_msg' : str(exception)
+                        'err_msg': str(exception)
                     }
                     return [json.dumps(result, sort_keys=True, indent=4)]
-                except Exception, exception:
+                except Exception as exception:
                     start_response('500 Internal Server Error',
-                            [('content-type', 'application/json')])
+                                   [('content-type', 'application/json')])
                     self.logger.error("Exception: %s occurs with message: %s" %
-                        (type(exception).__name__, str(exception)))
+                                      (type(exception).__name__, str(exception)))
                     result = {
                         'err_name': type(exception).__name__,
-                        'err_msg' : str(exception)
+                        'err_msg': str(exception)
                     }
                     return [json.dumps(result, sort_keys=True, indent=4)]
         else:
             self.logger.error("HTTP: 404 for %s" % path)
             start_response('404 File Not Found', [('content-type',
-                            'application/json')])
+                                                   'application/json')])
             result = {
                 'err_name': "FileNotFound",
-                'err_msg' : "File not found"
+                'err_msg': "File not found"
             }
             return [json.dumps(result, sort_keys=True, indent=4)]
 
 
-#---------------------------- Main Part ---------------------------------------
+# ---------------------------- Main Part ---------------------------------------
 
 def main():
     """Main function"""
@@ -127,17 +127,17 @@ def main():
 
     parser = OptionParser(usage)
 
-    parser.set_description ("Web app to test the dispatcher.")
+    parser.set_description("Web app to test the dispatcher.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
-    (options, args) = parser.parse_args ()
+    (options, args) = parser.parse_args()
 
     if len(args) != 0:
         parser.error("Error: incorrect number of arguments, try --help")
@@ -145,6 +145,7 @@ def main():
     application = DispatcherApp()
     server = make_server('', options.port, application)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     main()

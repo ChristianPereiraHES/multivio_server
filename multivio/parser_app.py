@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import sys
@@ -37,13 +37,14 @@ import parser
 from web_app import ApplicationError
 
 
-#------------------ Classes ----------------------------
+# ------------------ Classes ----------------------------
 class DocParserApp(WebApplication):
     """ Parser chooser or selector.
-        
+
         Based on the mime type it select the right chooser and return a vaild
         http response.
     """
+
     def __init__(self, temp_dir=MVOConfig.General.temp_dir):
         """ Build and instance used by the dispatcher.
 
@@ -54,17 +55,16 @@ class DocParserApp(WebApplication):
         """
         WebApplication.__init__(self, temp_dir)
 
-
         self.usage = """ Using the GET method it return the metadata, the
         logical structure and the physical structure in json format.<br>
 <h2>Arguments:</h2>
-<ul> 
-    <li><em>url --string--</em>  url of a xml/pdf file representing the record.  
-</ul> 
+<ul>
+    <li><em>url --string--</em>  url of a xml/pdf file representing the record.
+</ul>
 <h2>Examples:</h2>
 
 <h3>GetMetadata:</h3>
-<ul> 
+<ul>
 <li><a href="/server/metadata/get?url=http://doc.rero.ch/record/9264/export/xd?"><b>Simple Dublin Core.</b></a>
 <li><a
 href="/server/metadata/get?url=http://doc.rero.ch/lm.php?url=1000,40,6,20091106095458-OI/2009INFO006.pdf"><b>Simple Pdf.</b></a>
@@ -74,7 +74,7 @@ Core with Pdfs inside..</b></a>
 </ul>
 
 <h4>Examples Mets:</h4>
-<ul> 
+<ul>
 <li><a href="/server/metadata/get?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN338271201"><b>DFG Example 110 pages, 4 labels+titre.</b></a>
 <li><a href="/server/metadata/get?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574578609"><b>DFG Example: 165 pages, 26 labels + titre.</b></a>
 <li><a href="/server/metadata/get?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN243574339"><b>DFG Example: 421 pages, 71 labels + titre.</b></a>
@@ -83,12 +83,12 @@ Core with Pdfs inside..</b></a>
 <li><a href="/server/metadata/get?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574841571"><b>DFG Example: 276 pages, 24 labels + titre.</b></a>
 </ul>
 <h4>Examples Pdf:</h4>
-<ul> 
+<ul>
 <li><a href="/server/metadata/get?url=http://doc.rero.ch/lm.php?url=1000,40,4,20091104141001-BU/Th_FautschC.pdf"><b>PDF with TOC.</b></a>
 </ul>
 
 <h3>GetLogicalStructure:</h3>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_logical?url=http://doc.rero.ch/record/9264/export/xd?"><b>Simple Dublin Core.</b></a>
 <li><a
 href="/server/structure/get_logical?url=http://doc.rero.ch/lm.php?url=1000,40,6,20091106095458-OI/2009INFO006.pdf"><b>Simple Pdf.</b></a>
@@ -98,7 +98,7 @@ Core with Pdfs inside..</b></a>
 </ul>
 
 <h4>Examples Mets:</h4>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_logical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN338271201"><b>DFG Example 110 pages, 4 labels+titre.</b></a>
 <li><a href="/server/structure/get_logical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574578609"><b>DFG Example: 165 pages, 26 labels + titre.</b></a>
 <li><a href="/server/structure/get_logical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN243574339"><b>DFG Example: 421 pages, 71 labels + titre.</b></a>
@@ -107,12 +107,12 @@ Core with Pdfs inside..</b></a>
 <li><a href="/server/structure/get_logical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574841571"><b>DFG Example: 276 pages, 24 labels + titre.</b></a>
 </ul>
 <h4>Examples Pdf:</h4>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_logical?url=http://doc.rero.ch/lm.php?url=1000,40,4,20091104141001-BU/Th_FautschC.pdf"><b>PDF with TOC.</b></a>
 </ul>
 
 <h3>GetPhysicalStructure:</h3>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_physical?url=http://doc.rero.ch/record/9264/export/xd?"><b>Simple Dublin Core.</b></a>
 <li><a
 href="/server/structure/get_physical?url=http://doc.rero.ch/lm.php?url=1000,40,6,20091106095458-OI/2009INFO006.pdf"><b>Simple Pdf.</b></a>
@@ -122,7 +122,7 @@ Core with Pdfs inside..</b></a>
 </ul>
 
 <h4>Examples Mets:</h4>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_physical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN338271201"><b>DFG Example 110 pages, 4 labels+titre.</b></a>
 <li><a href="/server/structure/get_physical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574578609"><b>DFG Example: 165 pages, 26 labels + titre.</b></a>
 <li><a href="/server/structure/get_physical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN243574339"><b>DFG Example: 421 pages, 71 labels + titre.</b></a>
@@ -131,19 +131,19 @@ Core with Pdfs inside..</b></a>
 <li><a href="/server/structure/get_physical?url=http://gdz.sub.uni-goettingen.de/mets_export.php?PPN=PPN574841571"><b>DFG Example: 276 pages, 24 labels + titre.</b></a>
 </ul>
 <h4>Examples Pdf:</h4>
-<ul> 
+<ul>
 <li><a href="/server/structure/get_physical?url=http://doc.rero.ch/lm.php?url=1000,40,4,20091104141001-BU/Th_FautschC.pdf"><b>PDF with TOC.</b></a>
 </ul>
 """
-    
+
     def get(self, environ, start_response):
         """ Callback method for new http request.
-        
+
         """
-        #get parameters from the URI
+        # get parameters from the URI
         (path, opts) = self.get_params(environ)
 
-        #check if is valid
+        # check if is valid
         self.logger.info("Accessing: %s with opts: %s" % (path, opts))
 
         if re.search(r'metadata/get', path) is not None:
@@ -151,7 +151,7 @@ Core with Pdfs inside..</b></a>
             if opts.has_key('url'):
                 metadata = self.get_metadata(opts['url'])
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return ["%s" % metadata]
 
         if re.search(r'structure/get_logical', path) is not None:
@@ -159,7 +159,7 @@ Core with Pdfs inside..</b></a>
             if opts.has_key('url'):
                 logical = self.get_logical_structure(opts['url'])
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return ["%s" % logical]
 
         if re.search(r'structure/get_physical', path) is not None:
@@ -167,26 +167,26 @@ Core with Pdfs inside..</b></a>
             if opts.has_key('url'):
                 physical = self.get_physical_structure(opts['url'])
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return ["%s" % physical]
         raise ApplicationError.InvalidArgument("Invalid Argument")
 
     def _choose_parser(self, file_name, url, mime):
         """Select the right parser given the mime type."""
         if isinstance(file_name, basestring):
-            content = file(file_name,'r')
+            content = file(file_name, 'r')
         else:
             content = file_name
         if re.match('.*?/pdf.*?', mime):
             self.logger.info("Pdf parser found!")
             return PdfParser(file_name, url, url.split('/')[-1])
-        
+
         if re.match('image/.*?', mime):
             self.logger.info("Image parser found!")
             return ImgParser(content, url, url.split('/')[-1], mime)
 
         if re.match('.*?/xml.*?', mime):
-            #some METS files contain uppercase mets directive
+            # some METS files contain uppercase mets directive
             self.logger.info("XML parser found!")
             content_str = content.read()
             content.seek(0)
@@ -194,8 +194,8 @@ Core with Pdfs inside..</b></a>
             content_str = content_str.replace('METS:', 'mets:')
             content_str = content_str.replace('MODS=', 'mods=')
             content_str = content_str.replace('MODS:', 'mods:')
-            
-            #METS parser
+
+            # METS parser
             selected_parser = None
             try:
                 self.logger.debug("Try Mets parser!")
@@ -233,14 +233,13 @@ Core with Pdfs inside..</b></a>
     def get_metadata(self, url):
         """Get the internal metadata of a document."""
         (local_file, mime) = self.get_remote_file(url)
-            
 
-        #check the mime type
+        # check the mime type
         self.logger.debug("Url: %s Detected Mime: %s" % (url, mime))
         selected_parser = self._choose_parser(local_file, url, mime)
         metadata = selected_parser.get_metadata()
         metadata['mime'] = mime
-            
+
         return json.dumps(metadata,  sort_keys=True, indent=2)
 
     def get_logical_structure(self, url):
@@ -248,27 +247,27 @@ Core with Pdfs inside..</b></a>
         content."""
         (local_file, mime) = self.get_remote_file(url)
 
-        #check the mime type
+        # check the mime type
         selected_parser = self._choose_parser(local_file, url, mime)
         logic = selected_parser.get_logical_structure()
         #logic['mime'] = mime
-            
+
         return json.dumps(logic,  sort_keys=True, indent=2)
 
     def get_physical_structure(self, url):
         """Get the list of physical files such as pdf or images."""
         (local_file, mime) = self.get_remote_file(url)
 
-        #check the mime type
+        # check the mime type
         selected_parser = self._choose_parser(local_file, url, mime)
         physic = selected_parser.get_physical_structure()
         #physic['mime'] = mime
-            
+
         return json.dumps(physic,  sort_keys=True, indent=2)
 
     def get_params(self, environ):
         """ Overload the default method to allow cgi url.
-            
+
             The url parameter should be at the end of the url.
             i.e.
             /server/structure/get_logical?format=raw&url=http:www.toto.ch/test?url=http://www.test.ch
@@ -281,7 +280,7 @@ Core with Pdfs inside..</b></a>
         to_parse = environ['QUERY_STRING']
         if len(to_parse) > 0:
             res = list(re.match(r'[(.*?)&]{0,1}url=(.*)', to_parse).groups())
-            #replace all until the first occurence of url=
+            # replace all until the first occurence of url=
             opts['url'] = res.pop()
             if len(res) > 0:
                 for val in res:
@@ -289,27 +288,26 @@ Core with Pdfs inside..</b></a>
                     for arg in args:
                         res_args = list(re.match(r'(.*?)=(.*)', arg).groups())
                         opts[res_args[0]] = res_args[1]
-                    
+
         return (path, opts)
 
-            
-    
-#---------------------------- Main Part ---------------------------------------
+
+# ---------------------------- Main Part ---------------------------------------
 def main():
     """Main function"""
     usage = "usage: %prog [options]"
 
     opt_parser = OptionParser(usage)
 
-    opt_parser.set_description ("To test the Logger class.")
+    opt_parser.set_description("To test the Logger class.")
 
-    opt_parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    opt_parser.add_option("-v", "--verbose", dest="verbose",
+                          help="Verbose mode",
+                          action="store_true", default=False)
 
-    opt_parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    opt_parser.add_option("-p", "--port", dest="port",
+                          help="Http Port (Default: 4041)",
+                          type="int", default=4041)
 
     (options, args) = opt_parser.parse_args()
 
@@ -321,6 +319,6 @@ def main():
     server = make_server('', options.port, application)
     server.serve_forever()
 
+
 if __name__ == '__main__':
     main()
-

@@ -5,7 +5,7 @@ from cpython.object cimport Py_EQ, Py_NE
 from cpython.ref cimport PyObject
 import multivio
 
-
+################## Cython Intreface with poppler (C++) #######################
 ctypedef bool GBool
 ctypedef unsigned char Guchar
 ctypedef unsigned short Gushort
@@ -29,17 +29,11 @@ cdef enum SplashThinLineMode:
   splashThinLineSolid,
   splashThinLineShape
 
-cdef extern from "cpp/poppler-version.h" namespace "poppler":
-    cdef string version_string()
-
-def poppler_version():
-    return version_string()
-
 cdef extern from "GlobalParams.h":
     GlobalParams *globalParams
     cdef cppclass GlobalParams:
         GBool getOverprintPreview()
-
+globalParams = new GlobalParams()
 
 cdef extern from "goo/GooString.h":
     cdef cppclass GooString:
@@ -102,6 +96,7 @@ cdef extern from 'Object.h':
 
 cdef extern from "PDFDoc.h":
     cdef cppclass PDFDoc:
+        PDFDoc(GooString *fileNameA, GooString *ownerPassword = NULL, GooString *userPassword = NULL, void *guiDataA = NULL)
         int getNumPages()
         void displayPage(OutputDev *out, int page,
            double hDPI, double vDPI, int rotate,
@@ -115,11 +110,15 @@ cdef extern from "PDFDoc.h":
         XRef *getXRef()
         int getPageRotate(int page)
 
+cdef extern from "PDFDocFactory.h":
+    cdef cppclass PDFDocFactory:
+        PDFDocFactory()
+        PDFDoc *createPDFDoc(const GooString &uri, GooString *ownerPassword = NULL,
+                             GooString *userPassword = NULL, void *guiDataA = NULL)
 
 cdef extern from "TextOutputDev.h":
     cdef cppclass TextOutputDev:
-        TextOutputDev(char *fileName, GBool physLayoutA,
-          double fixedPitchA, GBool rawOrderA, GBool append)
+        TextOutputDev(char *fileName, GBool physLayoutA, double fixedPitchA, GBool rawOrderA, GBool append)
         TextPage *takeText()
 
     cdef cppclass TextPage:
@@ -177,5 +176,71 @@ cdef extern from "SplashOutputDev.h":
 cdef extern from "goo/gmem.h":
     pass
 
+
+##################### Extern acces by Python  ################################
 def init():
   globalParams = new GlobalParams()
+
+cdef class _PDFDoc:
+  cdef:
+      PDFDoc *_doc
+      int _pg
+
+  def __cinit__(self, char *fileNameA):
+      self._doc =  PDFDocFactory().createPDFDoc(GooString(fileNameA))
+      self._pg=0
+
+  def __dealloc__(self):
+      if self._doc != NULL:
+          del self._doc
+
+  def _getNumPages(self):
+      return self._doc.getNumPages()
+
+  def _getToc(self):
+      return ""
+
+  def _getInfo(self):
+      return ""
+
+  def _getPageMediaWidth(self, int pg):
+      return self._doc.getPageMediaWidth(pg)
+
+  def _getPageMediaHeight(self, int pg):
+      return self._doc.getPageMediaHeight(pg)
+
+  def _getPagePageRotate(self, int pg):
+      return self._doc.getPageRotate(pg)
+
+  cdef void render_page(self, OutputDev *dev, int page_no, double hDPI, double vDPI, int rotate, PyBool useMediaBox, PyBool crop, PyBool printing ):
+      self._doc.displayPage(dev, page_no, hDPI, vDPI, rotate, useMediaBox, crop, printing)
+
+  #def _getXRef(self):
+  #    return self._doc.getXRef()
+
+  #def _displayPage(self, OutputDev *out, int page, double hDPI, double vDPI, int rotate, GBool useMediaBox, GBool crop, GBool printing):
+  #    return self._doc.displayPage(out, page, hDPI, vDPI, rotate, useMediaBox, crop, printing)
+
+
+#cdef class _TextOutputDev:
+  #cdef:
+      #TextOutputDev *_out
+
+  #def __cinit__(self, char *fileName, PyBool physLayoutA, double fixedPitchA, PyBool rawOrderA, PyBool append):
+      #self._out = new TextOutputDev(fileName, physLayoutA, fixedPitchA, rawOrderA, append)
+
+  #def _takeText(self):
+  #    return self._out.takeText()
+
+#cdef class _SplashOutputDev:
+#  cdef:
+#      SplashOutputDev *_out
+
+  #def __cinit__(self, SplashColorMode colorModeA, int bitmapRowPadA, PyBool reverseVideoA, SplashColorPtr paperColorA, PyBool bitmapTopDownA, PyBool overprintPreviewA):
+  #    self._out = new SplashOutputDev(colorModeA, bitmapRowPadA, reverseVideoA, paperColorA, bitmapTopDownA, splashThinLineDefault, overprintPreviewA)
+
+  #def _getBitmap(self):
+  #    return self._out.getBitmap()
+
+  #def _startDoc(self, _PDFDoc *doc):
+  #    return self._out.startDoc(doc)

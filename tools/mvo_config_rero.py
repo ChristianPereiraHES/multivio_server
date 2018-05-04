@@ -15,82 +15,82 @@ import re
 def get_internal_file(url, force=False):
     """Get the file in local."""
     document_type = {
-            '10' : 'book',
-            '20' : 'journal', 
-            '25' : 'newspaper',
-            '30' : 'picture', 
-            '40' : 'thesis',
-            '41' : 'dissertation',
-            '42' : 'preprint',
-            '43' : 'postprint',
-            '44' : 'report',
-            '15' : 'partition'
-            }
+        '10': 'book',
+        '20': 'journal',
+        '25': 'newspaper',
+        '30': 'picture',
+        '40': 'thesis',
+        '41': 'dissertation',
+        '42': 'preprint',
+        '43': 'postprint',
+        '44': 'report',
+        '15': 'partition'
+    }
     localisations = {
-            '1'  : 'rero',
-            '2'  : 'unifr',
-            '3'  : 'unige',
-            '4'  : 'unine',
-            '5'  : 'unil',
-            '6'  : 'unisi',
-            '8'  : 'hetsfr',
-            '9'  : 'hegge',
-            '10' : 'ecav',
-            '11' : 'hevs2',
-            '12' : 'hepvs',
-            '13' : 'iukb',
-            '14' : 'idiap',
-            '15' : 'fsch',
-            '16' : 'cred',
-            '17' : 'curpufm',
-            '18' : 'crem',
-            '19' : 'medvs',
-            '20' : 'crepa',
-            '21' : 'ffhs',
-            '22' : 'hevs_',
-            '23' : 'bpuge',
-            '24' : 'hetsge',
-            '25' : 'baage',
-            '26' : 'elsvd',
-            '28' : 'hedsfr',
-            '29' : 'bvcfne',
-            '30' : 'coege',
-            '31' : 'mhnge',
-            '32' : 'bpune',
-            '33' : 'bcufr',
-            '34' : 'bmuge',
-            '35' : 'imvge',
-            '36' : 'aege',
-            '37' : 'avlvd',
-            '38' : 'cio',
-            '39' : 'pa16ju',
-            '40' : 'iheid'
-            }
+        '1': 'rero',
+        '2': 'unifr',
+        '3': 'unige',
+        '4': 'unine',
+        '5': 'unil',
+        '6': 'unisi',
+        '8': 'hetsfr',
+        '9': 'hegge',
+        '10': 'ecav',
+        '11': 'hevs2',
+        '12': 'hepvs',
+        '13': 'iukb',
+        '14': 'idiap',
+        '15': 'fsch',
+        '16': 'cred',
+        '17': 'curpufm',
+        '18': 'crem',
+        '19': 'medvs',
+        '20': 'crepa',
+        '21': 'ffhs',
+        '22': 'hevs_',
+        '23': 'bpuge',
+        '24': 'hetsge',
+        '25': 'baage',
+        '26': 'elsvd',
+        '28': 'hedsfr',
+        '29': 'bvcfne',
+        '30': 'coege',
+        '31': 'mhnge',
+        '32': 'bpune',
+        '33': 'bcufr',
+        '34': 'bmuge',
+        '35': 'imvge',
+        '36': 'aege',
+        '37': 'avlvd',
+        '38': 'cio',
+        '39': 'pa16ju',
+        '40': 'iheid'
+    }
 
     journal_collections = {
-            '4'  : 'cahiers_de_psychologie',
-            '5'  : 'dossiers_de_psychologie',
-            '6'  : 'droit_du_bail',
-            '7'  : 'revue_suisse_droit_sante',
-            '10' : 'bulletin_vals_asla',
-            '13' : 'revue_tranel'
+        '4': 'cahiers_de_psychologie',
+        '5': 'dossiers_de_psychologie',
+        '6': 'droit_du_bail',
+        '7': 'revue_suisse_droit_sante',
+        '10': 'bulletin_vals_asla',
+        '13': 'revue_tranel'
     }
-            
+
     newspaper_collections = {
-            '1'  : 'la_liberte',
-            '2'  : 'freiburger_nachrichten',
-            '8'  : 'la_pilule',
-            '9'  : 'le_cretin_des_alpes',
-            '11' : 'messager_boiteux_neuchatel',
-            '12' : 'revue_historique_neuchateloise',
-            '13' : 'etrennes_fribourgeoises',
-            '14' : 'rameau_de_sapin',
-            '15' : 'l_express',
-            '16' : 'l_impartial',
-            '17' : 'bulletin_sng',
-            '18' : 'federation_horlogere',
-            '19' : 'bibliotheques_et_musees',
-            '20' : 'depeche_de_neuchatel'
+        '1': 'la_liberte',
+        '2': 'freiburger_nachrichten',
+        '8': 'la_pilule',
+        '9': 'le_cretin_des_alpes',
+        '11': 'messager_boiteux_neuchatel',
+        '12': 'revue_historique_neuchateloise',
+        '13': 'etrennes_fribourgeoises',
+        '14': 'rameau_de_sapin',
+        '15': 'l_express',
+        '16': 'l_impartial',
+        '17': 'bulletin_sng',
+        '18': 'federation_horlogere',
+        '19': 'bibliotheques_et_musees',
+        '20': 'depeche_de_neuchatel'
     }
 
     mime = 'unknown'
@@ -123,15 +123,17 @@ def get_internal_file(url, force=False):
                 "Your are not allowed to see this document.")
     return (mime, local_file)
 
+
 class MVOConfig:
     """Main class for configuration."""
 
     class General:
         """General config."""
-        temp_dir = '/reroweb/var/tmp/multivio' 
+        temp_dir = '/reroweb/var/tmp/multivio'
         lib_dir = '/reroweb/var/scripts/multivio/lib/python'
         sys_pathes = ['/reroweb/var/scripts/multivio/lib/python',
-            '/reroweb/var/www/mutlivio/bin']
+                      '/reroweb/var/www/mutlivio/bin']
+
     class Security:
         pdf_max_width = 100
         pdf_max_height = 100
@@ -141,11 +143,11 @@ class MVOConfig:
     class Url:
         """Configuration for uploads."""
         user_agent = 'Firefox/3.5.2'
-        timeout = 120 #2 minutes
+        timeout = 120  # 2 minutes
 
     class Logger:
         """Config for logging."""
         name = "multivio"
         file_name = "/reroweb/var/log/multivio.log"
-        console = False
+        console = True
         level = logging.INFO

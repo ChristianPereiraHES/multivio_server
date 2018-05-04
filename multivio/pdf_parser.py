@@ -2,28 +2,29 @@
 # -*- coding: utf-8 -*-
 """PDF Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import re
-import poppler
+from multivio.poppler import _mypoppler as poppler
 from optparse import OptionParser
 
 # local modules
 from parser import DocumentParser, ParserError
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
 
 class PdfParser(DocumentParser):
     """To parse PDF document"""
@@ -36,7 +37,6 @@ class PdfParser(DocumentParser):
         self._page_id_to_page_numbers = None
         self._doc = poppler.PDFDoc(file_name)
 
-
     def _check(self):
         """Check if the pdf is valid."""
         current_pos = self._file_stream.tell()
@@ -46,7 +46,6 @@ class PdfParser(DocumentParser):
         if first_line.startswith('%PDF'):
             return True
         return False
-
 
     def get_metadata(self):
         """Get pdf infos."""
@@ -72,35 +71,34 @@ class PdfParser(DocumentParser):
         metadata['fileSize'] = self.get_file_size()
         metadata['defaultNativeSize'], metadata['nativeSize'] = self._get_native_size()
         #info = None
-        #try:
+        # try:
         #    info = self.getDocumentInfo()
-        #except Exception:
+        # except Exception:
         #    self.logger.info("Do not find info in pdf.")
-        #if info and info.title is not None and len(info.title) > 0 \
+        # if info and info.title is not None and len(info.title) > 0 \
         #        and self.has_toc(self.getOutlines()):
         #    metadata['title'] = info.title
-        #else:
+        # else:
         #    metadata['title'] = 'PDF Document'
         #    pdf_file_parts = self._url.split('/')
         #    if len(pdf_file_parts) > 0:
         #        if re.match('.*?\.pdf', pdf_file_parts[-1]):
         #            metadata['title'] = pdf_file_parts[-1]
 
-        #if info and info.author is not None and len(info.author) > 0:
+        # if info and info.author is not None and len(info.author) > 0:
         #    metadata['creator'] = [info.author]
-        #else:
+        # else:
         #    metadata['creator'] = ['']
         #metadata['nPages'] = self.getNumPages()
         #metadata['mime'] = 'application/pdf'
-        #self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True, 
+        # self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True,
         #                indent=4))
         return metadata
-    
 
     def _get_native_size(self, index=None):
         """Return the size of the document content.
             index -- dict: index in the document
-            
+
         return:
             data -- string: output data
         """
@@ -118,7 +116,7 @@ class PdfParser(DocumentParser):
         default_size = max(pages, key=lambda x: len(pages[x]))
         pages.pop(default_size)
         exceptions = {}
-        for k,v in pages.items():
+        for k, v in pages.items():
             for page_nr in v:
                 exceptions[page_nr] = k
         return default_size, exceptions
@@ -128,14 +126,15 @@ class PdfParser(DocumentParser):
         toc = self._doc.getToc()
         if len(toc) < 1:
             return None
+
         def add_file_index(entries):
             """Recursive function."""
             for entry in entries:
                 page_nr = entry['page_number']
                 entry['file_position'] = {
-                    'index' : page_nr,
-                    'url' : self._url     
-                    }
+                    'index': page_nr,
+                    'url': self._url
+                }
                 del entry['page_number']
                 if entry.has_key('childs'):
                     add_file_index(entry['childs'])
@@ -145,29 +144,28 @@ class PdfParser(DocumentParser):
     def get_physical_structure(self):
         """Get the physical structure of the pdf."""
         phys_struct = [{
-                          'url': self._url,
-                          'label': self._label
-                      }]
+            'url': self._url,
+            'label': self._label
+        }]
         return phys_struct
-    
 
 
-#---------------------------- Main Part ---------------------------------------
+# ---------------------------- Main Part ---------------------------------------
 def main():
     """Main function"""
     usage = "usage: %prog [options]"
 
     parser = OptionParser(usage)
 
-    parser.set_description ("To test the Logger class.")
+    parser.set_description("To test the Logger class.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
     (options, args) = parser.parse_args()
 
@@ -176,13 +174,13 @@ def main():
 
     parser = PdfParser(args[0], '', '')
     #info = parser.get_logical_structure()
-    #print info
+    # print info
     toc = parser.get_logical_structure()
     import pprint
     pprint.pprint(toc)
     info = parser.get_metadata()
     pprint.pprint(info)
 
+
 if __name__ == '__main__':
     main()
-

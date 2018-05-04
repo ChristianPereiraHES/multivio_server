@@ -8,7 +8,7 @@ __copyright__ = "Copyright (c) 2009 Rero, Johnny Mariethoz"
 __license__ = "Internal Use Only"
 
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import logging
@@ -17,38 +17,43 @@ import logging
 import logger
 from mvo_config import MVOConfig
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
+
 class ProcessorError:
     """Base class for Processor exception"""
     class InvalidDocument(Exception):
         """Input document is not valid."""
         pass
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
+
+
 class DocumentProcessor(object):
     """Base class to process document"""
-#_______________________________________________________________________________
+# _______________________________________________________________________________
+
     def __init__(self, file_name):
         self._file_name = file_name
         self.logger = logging.getLogger(MVOConfig.Logger.name + "."
-                        + self.__class__.__name__) 
+                                        + self.__class__.__name__)
         if self._check() is not True:
-            raise ProcessorError.InvalidDocument("The file is invalid. (is it" \
-                    "corrupted?)")
+            raise ProcessorError.InvalidDocument("The file is invalid. (is it"
+                                                 "corrupted?)")
 
     def _check(self):
         """Check if the document is valid."""
         return True
 
     def render(self, max_output_size=None, angle=0, index=None,
-        output_format=None, restricted=False):
+               output_format=None, restricted=False):
         """Render the document content.
 
             max_output_size -- tupple: maximum dimension of the output
             angle -- int: angle in degree
             index -- dict: index in the document
             output_format -- string: select the output format
-            
+
         return:
             mime_type -- string: output mime type
             data -- string: output data
@@ -58,7 +63,7 @@ class DocumentProcessor(object):
     def get_size(self, index=None):
         """Return the size of the document content.
             index -- dict: index in the document
-            
+
         return:
             data -- string: output data
         """
@@ -84,7 +89,7 @@ class DocumentProcessor(object):
         return None
 
     def search(self, query, from_=None, to_=None, max_results=None, sort=None,
-            context_size=None, angle=0):
+               context_size=None, angle=0):
         """Search parts of the document that match the given query.
 
             from_ -- dict: start the search at from_
@@ -95,10 +100,10 @@ class DocumentProcessor(object):
             a dictionary with the found results
         """
         to_return = {
-            "max_reached": 0, 
+            "max_reached": 0,
             "file_position": {
                 "results": []
-            }, 
+            },
             "context": "text"
         }
         return to_return
@@ -109,5 +114,3 @@ class DocumentProcessor(object):
             True if everything is ok.
         """
         return None
-
-

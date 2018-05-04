@@ -8,7 +8,7 @@ __copyright__ = "Copyright (c) 2009 Rero, Johnny Mariethoz"
 __license__ = "Internal Use Only"
 
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 from optparse import OptionParser
@@ -28,13 +28,14 @@ from image_processor import ImageProcessor
 from web_app import ApplicationError
 
 
-#------------------ Classes ----------------------------
+# ------------------ Classes ----------------------------
 class DocProcessorApp(WebApplication):
     """ Parser chooser or selector.
-        
+
         Based on the mime type it select the right chooser and return a vaild
         http response.
     """
+
     def __init__(self, temp_dir=MVOConfig.General.temp_dir):
         """ Build and instance used by the dispatcher.
 
@@ -100,15 +101,14 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
 
 """
 
-    
     def get(self, environ, start_response):
         """ Callback method for new http request.
-        
+
         """
-        #get parameters from the URI
+        # get parameters from the URI
         (path, opts) = self.get_params(environ)
 
-        #check if is valid
+        # check if is valid
         self.logger.info("Accessing: %s with opts: %s" % (path, opts))
         self.logger.debug("Cookie: %s" % self.cookies)
 
@@ -127,10 +127,11 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 if opts.has_key('page_nr'):
                     page_nr = int(opts['page_nr'])
                 (mime_type, data) = self.render(url=opts['url'],
-                    max_output_size=(max_width, max_height), angle=angle,
-                    index={'page_number':page_nr}, output_format=output_format)
+                                                max_output_size=(
+                                                    max_width, max_height), angle=angle,
+                                                index={'page_number': page_nr}, output_format=output_format)
                 start_response('200 OK', [('content-type',
-                    mime_type),('content-length', str(len(data)))])
+                                           mime_type), ('content-length', str(len(data)))])
                 return [data]
             else:
                 raise ApplicationError.InvalidArgument('Invalid Argument')
@@ -141,9 +142,9 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 if opts.has_key('page_nr'):
                     page_nr = int(opts['page_nr'])
                 size = self.get_size(url=opts['url'],
-                    index={'page_number':page_nr})
+                                     index={'page_number': page_nr})
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return [json.dumps(size, sort_keys=True, indent=2)]
             else:
                 raise ApplicationError.InvalidArgument('Invalid Argument')
@@ -160,19 +161,19 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 if opts.has_key('x1'):
                     x1 = round(float(opts['x1']), 2)
                 if opts.has_key('x2'):
-                    x2 = round(float(opts['x2']), 2) 
+                    x2 = round(float(opts['x2']), 2)
                 if opts.has_key('y1'):
-                    y1 = round(float(opts['y1']), 2) 
+                    y1 = round(float(opts['y1']), 2)
                 if opts.has_key('y2'):
                     y2 = round(float(opts['y2']), 2)
                 if opts.has_key('angle'):
                     angle = int(opts['angle'] or 0)
 
                 text_result = self.get_text(url=opts['url'],
-                    index={'page_number':page_nr, 'bounding_box':{'x1':x1,'x2':x2,'y1':y1,'y2':y2}}, angle=angle)
+                                            index={'page_number': page_nr, 'bounding_box': {'x1': x1, 'x2': x2, 'y1': y1, 'y2': y2}}, angle=angle)
                 # get_text now takes rotation angle into account
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return [json.dumps(text_result, sort_keys=True, indent=2)]
             else:
                 raise ApplicationError.InvalidArgument('Invalid Argument')
@@ -189,9 +190,9 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                     to_ = int(opts['to'] or 0)
 
                 pages_index = self.get_indexing(url=opts['url'],
-                    index={'page_number':page_nr}, from_=from_, to_=to_)
+                                                index={'page_number': page_nr}, from_=from_, to_=to_)
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return [json.dumps(pages_index, sort_keys=False, indent=2)]
             else:
                 raise ApplicationError.InvalidArgument('Invalid Argument')
@@ -210,7 +211,7 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 query = urllib.unquote(opts['query'])
                 from_ = 1
                 to_ = max_results = sort = context_size = None
-                angle = 0                
+                angle = 0
 
                 if opts.has_key('from'):
                     from_ = int(opts['from'] or 0)
@@ -226,16 +227,15 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                     angle = int(opts['angle'] or 0)
                 # get results
                 results = self.search(url, query, from_, to_, max_results,
-                    sort, context_size, angle)
+                                      sort, context_size, angle)
                 # add url to 'file_position' of results
                 results['file_position']['url'] = url
                 start_response('200 OK', [('content-type',
-                    'application/json')])
+                                           'application/json')])
                 return [json.dumps(results, sort_keys=False, indent=2,
-                    encoding='utf-8')]
+                                   encoding='utf-8')]
             else:
                 raise ApplicationError.InvalidArgument('Invalid Argument')
-
 
     def _choose_processor(self, file_name, mime):
         """Select the right processor given the mime type."""
@@ -244,7 +244,7 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
             self.logger.info("Pdf processor found!")
             pdf = PdfProcessor(file_name)
             return pdf
-        
+
         if re.match('image/.*?', mime):
             self.logger.info("Image processor found!")
             return ImageProcessor(file_name)
@@ -252,8 +252,8 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
         raise ApplicationError.UnsupportedFormat(
             "Cannot process file with %s mime type." % mime)
 
-    def render(self, url, max_output_size=None, angle=0, 
-        index=None, output_format=None):
+    def render(self, url, max_output_size=None, angle=0,
+               index=None, output_format=None):
         """Generate a content to display for a given document."""
         restricted_document = False
         try:
@@ -261,17 +261,17 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
         except ApplicationError.PermissionDenied:
             (file_name, mime) = self.get_remote_file(url, force=True)
             restricted_document = True
-            
-        #check the mime type
+
+        # check the mime type
         processor = self._choose_processor(file_name, mime)
         return processor.render(max_output_size, angle, index, output_format,
-                restricted_document)
+                                restricted_document)
 
     def get_size(self, url, index=None):
         """Generate a content to display for a given document."""
         (file_name, mime) = self.get_remote_file(url)
-            
-        #check the mime type
+
+        # check the mime type
         processor = self._choose_processor(file_name, mime)
         return processor.get_size(index)
 
@@ -279,7 +279,7 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
         """Get the text in the selected zone in the document"""
         (file_name, mime) = self.get_remote_file(url)
 
-        #check the mime type
+        # check the mime type
         processor = self._choose_processor(file_name, mime)
         return processor.get_text(index, angle)
 
@@ -287,23 +287,23 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
         """Get index of the positions of words on a given page"""
         (file_name, mime) = self.get_remote_file(url)
 
-        #check the mime type
+        # check the mime type
         processor = self._choose_processor(file_name, mime)
         return processor.get_indexing(index, from_, to_)
 
     def search(self, url, query, from_=None, to_=None, max_results=None,
-            sort=None, context_size=None, angle=0):
+               sort=None, context_size=None, angle=0):
         """Search text in a document"""
         (file_name, mime) = self.get_remote_file(url)
 
-        #check the mime type
+        # check the mime type
         processor = self._choose_processor(file_name, mime)
         return processor.search(query, from_, to_, max_results, sort,
-                context_size, angle)
+                                context_size, angle)
 
     def get_params(self, environ):
         """ Overload the default method to allow cgi url.
-            
+
             The url parameter should be at the end of the url.
             i.e.
             /server/structure/get_logical?format=raw&url=http:www.toto.ch/test?url=http://www.test.ch
@@ -317,7 +317,7 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
         self.logger.debug("To parse: %s" % to_parse)
         if len(to_parse) > 0:
             res = list(re.match(r'(.*?)&{0,1}url=(.*)', to_parse).groups())
-            #replace all until the first occurence of url=
+            # replace all until the first occurence of url=
             opts['url'] = res.pop()
             if len(res) > 0 and len(res[0]) > 0:
                 for val in res:
@@ -325,27 +325,26 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                     for arg in args:
                         res_args = list(re.match(r'(.*?)=(.*)', arg).groups())
                         opts[res_args[0]] = res_args[1]
-                    
+
         return (path, opts)
 
-            
-    
-#---------------------------- Main Part ---------------------------------------
+
+# ---------------------------- Main Part ---------------------------------------
 def main():
     """Main function"""
     usage = "usage: %prog [options]"
 
     parser = OptionParser(usage)
 
-    parser.set_description ("To test the Logger class.")
+    parser.set_description("To test the Logger class.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
     (options, args) = parser.parse_args()
 
@@ -357,6 +356,6 @@ def main():
     server = make_server('', options.port, application)
     server.serve_forever()
 
+
 if __name__ == '__main__':
     main()
-

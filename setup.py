@@ -10,7 +10,7 @@ except ImportError:
     print('You need to install cython first - sudo pip install cython', file=sys.stderr)
     sys.exit(1)
 
-poppler_ext = Extension('multivio.mypoppler', ['multivio/poppler/mypoppler.pyx'],
+poppler_ext = Extension('multivio.poppler._mypoppler', ['multivio/poppler/mypoppler.pyx'],
                         language='c++',
                         extra_compile_args=['-I%s/include/poppler' % poppler_install_path],
                         extra_link_args=['-lpoppler'],
@@ -23,6 +23,7 @@ setup(
     long_description='''Multivio is a project...''',
     license=multivio.__license__,
     url='http://www.multivio.org',
+    py_modules=['multivio.poppler.mypoppler'],
     ext_modules=cythonize([poppler_ext]),
     packages=[
         'multivio'
@@ -30,8 +31,8 @@ setup(
     scripts=[
         'tools/multivio_server.py', 'tools/mvo_config_example.py'
     ],
-    keywords=['multivio'],
     package_data={'multivio.mypoppler': ['*.so.*', 'multivio.mypoppler/*.so.*']},
+    keywords=['multivio'],
     classifiers=[
         'Development Status :: Beta',
         'Environment :: Console',

@@ -6,6 +6,8 @@ MAINTAINER Johnny Mariéthoz <Johnny.Mariethoz@rero.ch>
 
 # Node.js, bower, less, clean-css, uglify-js, requirejs
 RUN apt-get update
+RUN apt-get update
+
 RUN apt-get -qy upgrade --fix-missing --no-install-recommends
 
 # Install dependencies
@@ -13,14 +15,15 @@ RUN apt-get -qy install --fix-missing --no-install-recommends \
     g++ cmake make git python3 python3-dev python3-pip python3-setuptools\
     fontconfig libfontconfig1-dev zlib1g-dev libpng-dev lib32z1-dev\
     libjpeg-dev libtiff-dev libopenjp2-7-dev \
-    libapache2-mod-wsgi apache2 wget unzip 
+    libapache2-mod-wsgi apache2 wget unzip
 
 RUN pip3 install Cython
+
 RUN pip3 install pillow
 WORKDIR /code
 
 # Poppler
-RUN git clone git://git.freedesktop.org/git/poppler/poppler 
+RUN git clone git://git.freedesktop.org/git/poppler/poppler
 
 WORKDIR /code/poppler
 

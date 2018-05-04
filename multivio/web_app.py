@@ -2,17 +2,17 @@
 # -*- coding: utf-8 -*-
 """Base class for all wsgi web applications."""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules -----------------------------------------
+# ---------------------------- Modules -----------------------------------------
 
 # import of standard modules
 import os
@@ -27,14 +27,17 @@ from mvo_config import MVOConfig
 import mvo_config
 
 
-#------------- Exceptions -------------------------
+# ------------- Exceptions -------------------------
 class WebException(Exception):
     """Base class for errors in web application."""
+
     def __init__(self, value=None):
         self.value = value
         self.http_code = None
+
     def __str__(self):
         return repr(self.value)
+
 
 class ApplicationError:
     """Prefix to import all exceptions."""
@@ -43,6 +46,7 @@ class ApplicationError:
         """Problem with the remote server.
             HTTP: 502
         """
+
         def __init__(self, value=None):
             WebException.__init__(self, value)
             self.http_code = "502 Bad Gateway"
@@ -51,6 +55,7 @@ class ApplicationError:
         """Unsupported file format.
             HTTP: 415
         """
+
         def __init__(self, value=None):
             WebException.__init__(self, value)
             self.http_code = "502 Bad Gateway"
@@ -59,6 +64,7 @@ class ApplicationError:
         """
             HTTP: 403
         """
+
         def __init__(self, value=None):
             WebException.__init__(self, value)
             self.http_code = "502 Bad Gateway"
@@ -67,22 +73,25 @@ class ApplicationError:
         """
             HTTP: 400
         """
+
         def __init__(self, value=None):
             WebException.__init__(self, value)
             self.http_code = "502 Bad Gateway"
-    
+
     class HttpMethodNotAllowed(WebException):
         """
             HTTP: 405 Method Not Allowed
         """
+
         def __init__(self, value=None):
             WebException.__init__(self, value)
             self.http_code = "405 Method Not Allowed"
 
-#-------------------- Utils ------------------------ 
+# -------------------- Utils ------------------------
+
+
 class MyFancyURLopener(urllib.FancyURLopener):
     """Class to intercept 404 HTTP error."""
-
 
     def __init__(self, user_agent=None):
         if user_agent is not None:
@@ -111,7 +120,7 @@ cookies."""
            more cookies."""
         self.eatCookies(headers)
         result = urllib.FancyURLopener.http_error_302(self, url, fp, errcode,
-                errmsg, headers, data=None)
+                                                      errmsg, headers, data=None)
         return result
 
     def http_error_401(self, url, fp, errcode, errmsg, headers, data=None):
@@ -121,7 +130,7 @@ cookies."""
            more cookies."""
         print "401"
         raise ApplicationError.PermissionDenied(
-                                "Your are not allowed to see this document.")
+            "Your are not allowed to see this document.")
         return None
 
     def eatCookies(self, headers):
@@ -130,7 +139,7 @@ cookies."""
         cookies = headers.getallmatchingheaders('set-cookie')
         for c in cookies:
             # "set-cookie: " is 11 characters
-            self.addCookie(":".join(c.split(':')[1:])) 
+            self.addCookie(":".join(c.split(':')[1:]))
 
     def addCookie(self, cookie):
         """Add a cookie to our cache of them and call addheaders of our
@@ -148,7 +157,9 @@ class InputProcessed(object):
         raise EOFError('The wsgi.input stream has already been consumed')
     readline = readlines = __iter__ = read
 
-#-------------------- Main Classes ------------------------ 
+# -------------------- Main Classes ------------------------
+
+
 class WebApplication(object):
     """Base class for all wsgi web applications."""
 
@@ -164,7 +175,7 @@ class WebApplication(object):
         self._urlopener = MyFancyURLopener(MVOConfig.Url.user_agent)
         #self._urlopener.version = MVOConfig.Url.user_agent
         self.logger = logging.getLogger(MVOConfig.Logger.name + "."
-                        + self.__class__.__name__) 
+                                        + self.__class__.__name__)
         self._supported_mime = [
             r".*?/pdf.*?",
             r".*?/xml.*?",
@@ -179,7 +190,7 @@ class WebApplication(object):
         """Methods to call when a POST HTTP request should be served."""
         post_form = self.get_post_form(environ)
         raise ApplicationError.HttpMethodNotAllowed("POST method is not allowed.")
-    
+
     def get_params(self, environ):
         """Parse cgi parameters."""
         path = environ['PATH_INFO']
@@ -194,31 +205,31 @@ class WebApplication(object):
         if re.match('.*?help.*?', environ['PATH_INFO']):
             start_response('200 OK', [('content-type', 'text/html')])
             return [self.usage]
-            
+
         if environ['REQUEST_METHOD'].upper() == 'GET':
-            return self.get( environ, start_response)
+            return self.get(environ, start_response)
 
         if environ['REQUEST_METHOD'].upper() == 'POST':
-            return self.post( environ, start_response)
+            return self.post(environ, start_response)
 
         start_response('405 Method Not Allowed', [('content-type',
-                        'text/html')])
+                                                   'text/html')])
         self.request = (None, None)
         return ["%s is not allowed." % environ['REQUEST_METHOD'].upper()]
 
     def check_mime(self, mime):
         """Check if the mime type is supported."""
-        if not [ re.match(regex, mime) for regex in self._supported_mime
+        if not [re.match(regex, mime) for regex in self._supported_mime
                 if re.match(regex, mime)]:
             raise ApplicationError.UnsupportedFormat(
                 "Mime type: %s is not supported" % mime)
 
     def get_remote_file(self, url, force=False, request=None):
         """Get a remote file if needed and download it in a cache directory."""
-        #file in RERO DOC nfs volume
+        # file in RERO DOC nfs volume
         try:
-            (mime, local_file) = mvo_config.get_internal_file(url, force, 
-                    self.request)
+            (mime, local_file) = mvo_config.get_internal_file(url, force,
+                                                              self.request)
 
             if local_file and not isinstance(local_file, basestring):
                 self.check_mime(mime)
@@ -231,17 +242,17 @@ class WebApplication(object):
                 return (local_file, mime)
         except (NameError, AttributeError):
             pass
-        
+
         url_md5 = hashlib.sha224(url).hexdigest()
         self.logger.debug('Temp dir: %s' % self._tmp_dir)
         local_file = os.path.join(self._tmp_dir, url_md5)
 
-        #remote file
+        # remote file
         mime_file = local_file + ".mime"
         to_download = False
         try:
-            #file exists: ATOMIC?
-            tmp_file = os.open(local_file, os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            # file exists: ATOMIC?
+            tmp_file = os.open(local_file, os.O_CREAT | os.O_EXCL | os.O_RDWR)
             to_download = True
             os.close(tmp_file)
 
@@ -255,17 +266,17 @@ class WebApplication(object):
                 self._urlopener.addheaders.append(("Cookie", self.cookies))
             try:
                 (filename, headers) = self._urlopener.retrieve(url,
-                    local_file+".tmp")
+                                                               local_file+".tmp")
                 end = time.time()
-                self.logger.info("Total Downloading Time: %s,"\
-                    " Connection speed: %s KB/s " % (end-start,
-                    os.path.getsize(filename)/((end-start)*1024.)))
+                self.logger.info("Total Downloading Time: %s,"
+                                 " Connection speed: %s KB/s " % (end-start,
+                                                                  os.path.getsize(filename)/((end-start)*1024.)))
                 self.logger.info("%s downloaded into %s" % (url, local_file))
             except Exception, e:
                 os.remove(local_file)
                 raise ApplicationError.UnableToRetrieveRemoteDocument(str(e))
-                
-            #save mime type in cache
+
+            # save mime type in cache
             mime = headers['Content-Type']
             if re.match('.*?/x-download', mime):
                 mime = 'application/pdf'
@@ -276,20 +287,20 @@ class WebApplication(object):
             #file in cache
             os.rename(filename, local_file)
         else:
-            #downloading by an other process?
-            start_time_wait = time.time() 
+            # downloading by an other process?
+            start_time_wait = time.time()
             time_out_counter = 0
             while os.path.getsize(local_file) == 0L \
-                and time_out_counter < self._timeout:
-                self.logger.info("Wait for file: %s" % local_file )
+                    and time_out_counter < self._timeout:
+                self.logger.info("Wait for file: %s" % local_file)
                 time.sleep(.5)
                 time_out_counter = time.time() - start_time_wait
             if time_out_counter >= self._timeout:
                 self.logger.warn("Uploading process timeout")
                 raise ApplicationError.UnableToRetrieveRemoteDocument(
                     "Uploading process timeout: %s" % url)
-        
-        #load mime type
+
+        # load mime type
         output_mime_file = file(mime_file, "r")
         mime = output_mime_file.read()
         output_mime_file.close()
@@ -297,13 +308,13 @@ class WebApplication(object):
         self.check_mime(mime)
 
         self.logger.debug("Url: %s Mime: %s LocalFile: %s" % (url, mime,
-                local_file))
+                                                              local_file))
 
         return (local_file, mime)
-        
-#---------------------- to update when the remote file is modified ---------
-        #is file exists?
-        #if os.path.isfile(local_file):
+
+# ---------------------- to update when the remote file is modified ---------
+        # is file exists?
+        # if os.path.isfile(local_file):
         #    stats = os.stat(local_file)
         #    diff_last_access = datetime.timedelta(seconds=now -
         #            stats[7])
@@ -335,13 +346,12 @@ class WebApplication(object):
         #                self.logger.debug("Update file.")
         #os.utime(local_file, (now, os.stat(local_file)[8]))
 
-
     def get_post_form(self, environ):
         """For POST HTTP request."""
         wsgi_input = environ['wsgi.input']
         post_form = environ.get('wsgi.post_form')
         if (post_form is not None
-            and post_form[0] is wsgi_input):
+                and post_form[0] is wsgi_input):
             return post_form[2]
         fs = cgi.FieldStorage(fp=wsgi_input,
                               environ=environ,

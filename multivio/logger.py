@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 """Logging module for the Multivio application."""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
 
-#---------------------------- Modules -----------------------------------------
+# ---------------------------- Modules -----------------------------------------
 
 # import of standard modules
 from optparse import OptionParser
@@ -24,16 +24,19 @@ import logging
 from mvo_config import MVOConfig
 from web_app import WebApplication
 
+
 class LoggerError:
     """Base class for errors in the Logger packages."""
     class InvalidFileName(Exception):
         """The given file name is not correct."""
         pass
 
+
 class Logger:
     """To log several messages"""
+
     def __init__(self, name="multivio", log_output_file=None, log_console=True,
-                log_level=logging.DEBUG):
+                 log_level=logging.DEBUG):
         """ Create an Looger object for messages logging.
 
             Keyword arguments:
@@ -46,15 +49,15 @@ class Logger:
         # create logger with "spam_application"
         self.logger = logging.getLogger(name)
         self.logger.setLevel(log_level)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s"\
-                                        "- %(message)s")
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s"
+                                      "- %(message)s")
         # create file handler logger
         if log_output_file is not None:
             try:
                 log_filehandler = logging.FileHandler(log_output_file)
             except IOError:
-                raise LoggerError.InvalidFileName("Output file: %s cannot be " \
-                        "created." % log_output_file)
+                raise LoggerError.InvalidFileName("Output file: %s cannot be "
+                                                  "created." % log_output_file)
             log_filehandler.setFormatter(formatter)
             self.logger.addHandler(log_filehandler)
 
@@ -65,19 +68,22 @@ class Logger:
             log_console.setFormatter(formatter)
             self.logger.addHandler(log_console)
 
+
 LOGGER = Logger(MVOConfig.Logger.name, MVOConfig.Logger.file_name,
                 MVOConfig.Logger.console, MVOConfig.Logger.level)
 
+
 class LoggerApp(WebApplication):
     """Web application for logging"""
+
     def __init__(self):
         """Basic constructor"""
         WebApplication.__init__(self)
         self.usage = """Using the POST method it put a log message in"\
                         "the server.<br>"""
         self.logger = logging.getLogger(MVOConfig.Logger.name + "."
-                + self.__class__.__name__) 
-    
+                                        + self.__class__.__name__)
+
     def post(self, environ, start_response):
         """Get the log message from the client in forward it into the loggging
         system of the server.
@@ -91,7 +97,7 @@ class LoggerApp(WebApplication):
         return ["Ok"]
 
 
-#---------------------------- Main Part ---------------------------------------
+# ---------------------------- Main Part ---------------------------------------
 
 def main():
     """Main function"""
@@ -99,15 +105,15 @@ def main():
 
     parser = OptionParser(usage)
 
-    parser.set_description ("To test the Logger class.")
+    parser.set_description("To test the Logger class.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
     (options, args) = parser.parse_args()
 
@@ -118,6 +124,7 @@ def main():
     application = LoggerApp()
     server = make_server('', options.port, application)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     main()
