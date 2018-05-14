@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Logging module for the Multivio application."""
 
@@ -22,7 +22,7 @@ from optparse import OptionParser
 
 import logging
 from mvo_config import MVOConfig
-from web_app import WebApplication
+from multivio.web_app import WebApplication
 
 
 class LoggerError:

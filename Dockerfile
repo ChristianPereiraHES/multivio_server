@@ -6,20 +6,19 @@ MAINTAINER Johnny Mariéthoz <Johnny.Mariethoz@rero.ch>
 
 # Node.js, bower, less, clean-css, uglify-js, requirejs
 RUN apt-get update
-RUN apt-get update
 
 RUN apt-get -qy upgrade --fix-missing --no-install-recommends
 
 # Install dependencies
 RUN apt-get -qy install --fix-missing --no-install-recommends \
     g++ cmake make git python3 python3-dev python3-pip python3-setuptools\
-    fontconfig libfontconfig1-dev zlib1g-dev libpng-dev lib32z1-dev\
+    fontconfig libfontconfig1-dev zlib1g zlib1g-dev libpng-dev lib32z1-dev\
     libjpeg-dev libtiff-dev libopenjp2-7-dev \
-    libapache2-mod-wsgi apache2 wget unzip
+    libapache2-mod-wsgi-py3 apache2 wget unzip
 
 RUN pip3 install Cython
 
-RUN pip3 install pillow
+RUN pip3 install Pillow
 WORKDIR /code
 
 # Poppler
@@ -55,12 +54,12 @@ RUN mkdir -p /var/log/multivio /var/tmp/multivio /var/www/multivio/server \
 RUN cp scripts/httpd-foreground /usr/local/bin \
     && chmod a+x /usr/local/bin/httpd-foreground
 
-WORKDIR /var/www/multivio/client
-RUN wget http://demo.multivio.org/multivio/client_1.0.0.zip \
-    && unzip client_1.0.0.zip \
-    && mv client_1.0.0/* . \
-    && rm -fr client_1.0.0 client_1.0.0.zip \
-    && chown -R www-data:www-data /var/www/multivio/client
+#WORKDIR /var/www/multivio/client
+#RUN wget http://demo.multivio.org/multivio/client_1.0.0.zip \
+#    && unzip client_1.0.0.zip \
+#    && mv client_1.0.0/* . \
+#    && rm -fr client_1.0.0 client_1.0.0.zip \
+#cd se    && chown -R www-data:www-data /var/www/multivio/client
 
 
 CMD ["httpd-foreground"]

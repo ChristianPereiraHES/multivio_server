@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Base class for all wsgi web applications."""
 
@@ -25,9 +25,11 @@ import logging
 
 from mvo_config import MVOConfig
 import mvo_config
-
+from urllib.request import FancyURLopener
 
 # ------------- Exceptions -------------------------
+
+
 class WebException(Exception):
     """Base class for errors in web application."""
 
@@ -90,13 +92,13 @@ class ApplicationError:
 # -------------------- Utils ------------------------
 
 
-class MyFancyURLopener(urllib.FancyURLopener):
+class MyFancyURLopener(FancyURLopener):
     """Class to intercept 404 HTTP error."""
 
     def __init__(self, user_agent=None):
         if user_agent is not None:
             MyFancyURLopener.version = user_agent
-        urllib.FancyURLopener.__init__(self)
+        FancyURLopener.__init__(self)
         self.cookies = []
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
@@ -109,7 +111,7 @@ class MyFancyURLopener(urllib.FancyURLopener):
 to do
            the real work.  Afterwards, we scan the info() for
 cookies."""
-        result = urllib.FancyURLopener.open_http(self, url, data)
+        result = FancyURLopener.open_http(self, url, data)
         self.eatCookies(result.info())
         return result
 
@@ -119,8 +121,8 @@ cookies."""
            will call back into our open_http method, where we can pick up
            more cookies."""
         self.eatCookies(headers)
-        result = urllib.FancyURLopener.http_error_302(self, url, fp, errcode,
-                                                      errmsg, headers, data=None)
+        result = FancyURLopener.http_error_302(self, url, fp, errcode,
+                                               errmsg, headers, data=None)
         return result
 
     def http_error_401(self, url, fp, errcode, errmsg, headers, data=None):
@@ -128,7 +130,7 @@ cookies."""
            off of the initial URL.  Then hand it off to the super-class, which
            will call back into our open_http method, where we can pick up
            more cookies."""
-        print "401"
+        print("401")
         raise ApplicationError.PermissionDenied(
             "Your are not allowed to see this document.")
         return None
@@ -272,7 +274,7 @@ class WebApplication(object):
                                  " Connection speed: %s KB/s " % (end-start,
                                                                   os.path.getsize(filename)/((end-start)*1024.)))
                 self.logger.info("%s downloaded into %s" % (url, local_file))
-            except Exception, e:
+            except Exception as e:
                 os.remove(local_file)
                 raise ApplicationError.UnableToRetrieveRemoteDocument(str(e))
 
@@ -290,7 +292,7 @@ class WebApplication(object):
             # downloading by an other process?
             start_time_wait = time.time()
             time_out_counter = 0
-            while os.path.getsize(local_file) == 0L \
+            while os.path.getsize(local_file) == b'\x00' \
                     and time_out_counter < self._timeout:
                 self.logger.info("Wait for file: %s" % local_file)
                 time.sleep(.5)

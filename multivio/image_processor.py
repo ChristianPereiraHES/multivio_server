@@ -1,40 +1,42 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
 
-
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import re
-import cStringIO
+from io import StringIO
 
 # local modules
-from processor import DocumentProcessor
+from multivio.processor import DocumentProcessor
 try:
     import Image
 except:
     from PIL import Image
 
-#----------------------------------- Exceptions --------------------------------
+# ----------------------------------- Exceptions --------------------------------
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
+
+
 class ImageProcessor(DocumentProcessor):
     """Class to process pdf document"""
-#_______________________________________________________________________________
+# _______________________________________________________________________________
+
     def __init__(self, file_name):
         DocumentProcessor.__init__(self, file_name)
         self._img = Image.open(file_name)
@@ -44,14 +46,14 @@ class ImageProcessor(DocumentProcessor):
         return True
 
     def render(self, max_output_size=None, angle=0, index=None,
-        output_format=None, restricted=False):
+               output_format=None, restricted=False):
         """Render the document content.
 
             max_output_size -- tupple: maximum dimension of the output
             angle -- int: angle in degree
             index -- dict: index in the document
             output_format -- string: select the output format
-            
+
         return:
             mime_type -- string: output mime type
             data -- string: output data
@@ -68,11 +70,11 @@ class ImageProcessor(DocumentProcessor):
         if restricted:
             (new_width, new_height) = self._img.size()
             if (MVOConfig.Security.img_max_width < max_width)\
-                or (MVOConfig.Security.pdf_max_height < new_height):
+                    or (MVOConfig.Security.pdf_max_height < new_height):
                 raise ApplicationError.PermissionDenied(
                     "Your are not allowed to see this document.")
 
-        temp_file = cStringIO.StringIO()
+        temp_file = StringIO()
         #img.save(f, "PNG")
         self.logger.debug("Out format: %s", output_format)
         if re.match(r'.*?/jpeg', output_format):
@@ -87,11 +89,11 @@ class ImageProcessor(DocumentProcessor):
         temp_file.seek(0)
         content = temp_file.read()
         return(mime_type, content)
-    
+
     def get_size(self, index=None):
         """Return the size of the document content.
             index -- dict: index in the document
-            
+
         return:
             data -- string: output data
         """

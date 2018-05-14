@@ -1,19 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import sys
@@ -23,14 +23,15 @@ else:
     import json
 
 # local modules
-from parser import DocumentParser
+from multivio.parser import DocumentParser
 
 try:
     import Image
 except:
     from PIL import Image
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
 
 class ImgParser(DocumentParser):
     """To parse PDF document"""
@@ -54,20 +55,20 @@ class ImgParser(DocumentParser):
         metadata['title'] = self._url.split('/')[-1]
         metadata['mime'] = self._mime
         metadata['fileSize'] = self.get_file_size()
-        metadata['defaultNativeSize'] = (self._width, self._height) 
+        metadata['defaultNativeSize'] = (self._width, self._height)
         #metadata['width'] = self._width
         #metadata['height'] = self._height
 
-        self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True, 
-                        indent=4))
+        self.logger.debug("Metadata: %s" % json.dumps(metadata, sort_keys=True,
+                                                      indent=4))
         return metadata
-    
+
     def get_physical_structure(self):
         """Get the physical structure of the pdf."""
         phys_struct = [{
-                          'url': self._url,
-                          'label': self._label
-                      }]
-        self.logger.debug("Physical Structure: %s"% json.dumps(phys_struct,
-                sort_keys=True, indent=4))
+            'url': self._url,
+            'label': self._label
+        }]
+        self.logger.debug("Physical Structure: %s" % json.dumps(phys_struct,
+                                                                sort_keys=True, indent=4))
         return phys_struct

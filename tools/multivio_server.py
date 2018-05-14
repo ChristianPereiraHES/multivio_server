@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -16,20 +16,17 @@ Main script for WSGI apache module.
 # ---------------------------- Modules -----------------------------------------
 
 import sys
-sys.stdout = sys.stderr
-
+#sys.stdout = sys.stderr
 import os
 
 # mvo_config.py is in the same directory than the main wsgi application
-
-script_dir = os.path.dirname(__file__)
-sys.path.insert(0, script_dir)
-from mvo_config import MVOConfig
+#script_dir = os.path.dirname(__file__)
+sys.path.insert(0, "/var/www/multivio/server")
+import mvo_config
 
 # library location
-[sys.path.insert(0, p) for p in MVOConfig.General.sys_pathes]
+#[sys.path.insert(0, p) for p in MVOConfig.General.sys_pathes]
 
+from multivio.dispatcher_app import DispatcherApp
 
-import multivio.dispatcher_app
-
-application = multivio.dispatcher_app.DispatcherApp()
+application = DispatcherApp()

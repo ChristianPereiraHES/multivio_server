@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
@@ -25,16 +25,16 @@ import re
 
 # local modules
 from mvo_config import MVOConfig
-from web_app import WebApplication
+from multivio.web_app import WebApplication
 
-from pdf_parser import PdfParser
-from dc_parser import DublinCoreParser
-from image_parser import ImgParser
-from mets_parser import MetsParser
-from marc_parser import MarcParser
-from mods_parser import ModsParser
-import parser
-from web_app import ApplicationError
+from multivio.pdf_parser import PdfParser
+from multivio.dc_parser import DublinCoreParser
+from multivio.image_parser import ImgParser
+from multivio.mets_parser import MetsParser
+from multivio.marc_parser import MarcParser
+from multivio.mods_parser import ModsParser
+import multivio.parser as parser
+from multivio.web_app import ApplicationError
 
 
 # ------------------ Classes ----------------------------
@@ -148,7 +148,7 @@ Core with Pdfs inside..</b></a>
 
         if re.search(r'metadata/get', path) is not None:
             self.logger.debug("Get Metadata with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 metadata = self.get_metadata(opts['url'])
                 start_response('200 OK', [('content-type',
                                            'application/json')])
@@ -156,7 +156,7 @@ Core with Pdfs inside..</b></a>
 
         if re.search(r'structure/get_logical', path) is not None:
             self.logger.debug("Get Logical with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 logical = self.get_logical_structure(opts['url'])
                 start_response('200 OK', [('content-type',
                                            'application/json')])
@@ -164,7 +164,7 @@ Core with Pdfs inside..</b></a>
 
         if re.search(r'structure/get_physical', path) is not None:
             self.logger.debug("Get Physical with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 physical = self.get_physical_structure(opts['url'])
                 start_response('200 OK', [('content-type',
                                            'application/json')])

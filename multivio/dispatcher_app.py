@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Multivio HTTP requests dispatcher."""
 
@@ -25,17 +25,17 @@ else:
     import json
 
 # third party modules
-import multivio.logger
+import multivio.logger as logger
 import logging
 #import mvo_parser
-import processor_app
-import parser_app
-import version_app
+import multivio.processor_app as processor_app
+import multivio.parser_app as parser_app
+import multivio.version_app as version_app
 
-from web_app import WebApplication
-from webprocessor_app import WebProcessorApp
+from multivio.web_app import WebApplication
+from multivio.webprocessor_app import WebProcessorApp
 from mvo_config import MVOConfig
-from web_app import ApplicationError
+from multivio.web_app import ApplicationError
 
 
 class DispatcherApp(WebApplication):
@@ -78,11 +78,12 @@ class DispatcherApp(WebApplication):
                 response.extend(["<h3>%s</h3>" % k])
                 self.logger.debug(self._apps[k].usage)
                 response.extend([self._apps[k].usage])
-            return response
+            return response.encode('utf-8')
         for k in self._apps.keys():
+            print(k)  # TODO
             if re.match(k, path):
                 try:
-                    return self._apps[k](environ, start_response)
+                    return self._apps[k](environ, start_response).encode('utf-8')
                 except (ApplicationError.PermissionDenied,
                         ApplicationError.UnableToRetrieveRemoteDocument,
                         ApplicationError.UnsupportedFormat,
@@ -93,20 +94,20 @@ class DispatcherApp(WebApplication):
                     self.logger.error("Exception: %s occurs with message: %s" %
                                       (type(exception).__name__, str(exception)))
                     result = {
-                        'err_name': type(exception).__name__,
+                        'err_name1': type(exception).__name__,
                         'err_msg': str(exception)
                     }
-                    return [json.dumps(result, sort_keys=True, indent=4)]
+                    return [(json.dumps(result, sort_keys=True, indent=4)).encode('utf-8')]
                 except Exception as exception:
                     start_response('500 Internal Server Error',
                                    [('content-type', 'application/json')])
                     self.logger.error("Exception: %s occurs with message: %s" %
                                       (type(exception).__name__, str(exception)))
                     result = {
-                        'err_name': type(exception).__name__,
+                        'err_name2': type(exception).__name__,
                         'err_msg': str(exception)
                     }
-                    return [json.dumps(result, sort_keys=True, indent=4)]
+                    return [(json.dumps(result, sort_keys=True, indent=4)).encode('utf-8')]
         else:
             self.logger.error("HTTP: 404 for %s" % path)
             start_response('404 File Not Found', [('content-type',
@@ -115,7 +116,7 @@ class DispatcherApp(WebApplication):
                 'err_name': "FileNotFound",
                 'err_msg': "File not found"
             }
-            return [json.dumps(result, sort_keys=True, indent=4)]
+            return [(json.dumps(result, sort_keys=True, indent=4)).encode('utf-8')]
 
 
 # ---------------------------- Main Part ---------------------------------------

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
@@ -11,13 +11,13 @@ __license__ = "Internal Use Only"
 # ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
-import cStringIO
+from io import StringIO
 import os.path
 
 # local modules
-from processor import DocumentProcessor
+from multivio.processor import DocumentProcessor
 from multivio.poppler import _mypoppler as poppler
-from web_app import ApplicationError
+from multivio.web_app import ApplicationError
 from mvo_config import MVOConfig
 try:
     import Image
@@ -36,7 +36,6 @@ class PdfProcessor(DocumentProcessor):
 # _______________________________________________________________________________
 
     def __init__(self, file_name):
-        print("Cacca")
         DocumentProcessor.__init__(self, file_name)
         # poppler.cvar.globalParams.setEnableFreeType("yes")
         # poppler.cvar.globalParams.setErrQuiet(True)
@@ -45,7 +44,6 @@ class PdfProcessor(DocumentProcessor):
         self._doc = poppler._PDFDoc((self._file_name).encode('utf-8'))
         self._index = None
 
-        print("Hello")
         # store url md5
         # NOTE: assuming the name of the file given is the md5 of the url
         self._url_md5 = os.path.split(self._file_name)[1]
@@ -53,6 +51,20 @@ class PdfProcessor(DocumentProcessor):
 
         # keyword for boolean search
         self._AND = ' and'
+
+    def get_size(self, index=None):
+        """Return the size of the document content.
+            index -- dict: index in the document
+
+        return:
+            data -- string: output data
+        """
+        page_nr = index['page_number']
+        size = {}
+        size['width'] = self._doc._getPageMediaWidth(page_nr)
+        size['height'] = self._doc._getPageMediaHeight(page_nr)
+
+        return size
 
 
 '''
@@ -79,22 +91,7 @@ class PdfProcessor(DocumentProcessor):
         return self._get_image_from_pdf(page_nr=index['page_number'],
                                         max_width=max_output_size[0], max_height=max_output_size[1],
                                         angle=angle, output_format=output_format, restricted=restricted)
-'''
 
-    def get_size(self, index=None):
-        """Return the size of the document content.
-            index -- dict: index in the document
-
-        return:
-            data -- string: output data
-        """
-        page_nr = index['page_number']
-        size = {}
-        size['width'] = self._doc._getPageMediaWidth(page_nr)
-        size['height'] = self._doc._getPageMediaHeight(page_nr)
-
-        return size
-'''
     def get_text(self, index=None, angle=0):
         """Return the text contained inside the selected box.
             index -- dict: index in the document, including 'bounding_box'
@@ -575,7 +572,7 @@ class PdfProcessor(DocumentProcessor):
                     continue
 
                 # check for existing entry of word in index
-                if index.has_key(wt):
+                if wt in index:
                     index[wt].append({'page_number': np,
                                       'bbx': {'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2}})
                 else:
@@ -685,7 +682,7 @@ class PdfProcessor(DocumentProcessor):
 
         pil = Image.frombytes('RGB', (new_width, new_height),
                               bitmap.getDataPtr())
-        temp_file = cStringIO.StringIO()
+        temp_file = StringIO()
         pil.save(temp_file, "JPEG", quality=90)
         temp_file.seek(0)
         content = temp_file.read()

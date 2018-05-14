@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """Config file for multivio server."""
 # -*- coding: utf-8 -*-
 

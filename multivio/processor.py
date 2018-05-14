@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
@@ -14,7 +14,7 @@ __license__ = "Internal Use Only"
 import logging
 
 # local modules
-import logger
+import multivio.logger as logger
 from mvo_config import MVOConfig
 
 # ----------------------------------- Classes -----------------------------------

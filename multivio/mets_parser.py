@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Document Parser module for Multivio"""
 # -*- coding: utf-8 -*-
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import sys
@@ -25,9 +25,10 @@ from xml.dom.minidom import parseString
 import re
 
 # local modules
-from parser import DocumentParser, ParserError
+from multivio.parser import DocumentParser, ParserError
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
 
 class MetsParser(DocumentParser):
     """To parse PDF document"""
@@ -38,16 +39,16 @@ class MetsParser(DocumentParser):
         self._namespace_URI = 'http://www.loc.gov/METS/'
         self._mods_namespace_URI = 'http://www.loc.gov/mods/v3'
 
-        #read the content of the file
+        # read the content of the file
         self._content_str = self._file_stream.read()
-        
+
         self._logical_structure = None
         self._physical_structure = None
         self._meta_data = None
         self._relation = None
         self._file_list = None
 
-        #some METS files contain uppercase mets directive
+        # some METS files contain uppercase mets directive
         #self._content_str = self._content_str.replace('METS=', 'mets=')
         #self._content_str = self._content_str.replace('', '')
         #self._content_str = self._content_str.replace('MODS=', 'mods=')
@@ -55,17 +56,15 @@ class MetsParser(DocumentParser):
         try:
             self._doc = parseString(self._content_str)
         except Exception:
-            raise ParserError.InvalidDocument("The file is invalid. (is it" \
-                    "corrupted?)")
+            raise ParserError.InvalidDocument("The file is invalid. (is it"
+                                              "corrupted?)")
         if self._check_xml() is not True:
-            raise ParserError.InvalidDocument("The file is invalid. (is it" \
-                    "corrupted?)")
-        
-        
+            raise ParserError.InvalidDocument("The file is invalid. (is it"
+                                              "corrupted?)")
 
     def _check_xml(self):
         """Check if the pdf is valid."""
-        #METS parser
+        # METS parser
         mets = self._doc.getElementsByTagNameNS(self._namespace_URI, 'mets')
         if len(mets) > 0:
             return True
@@ -76,7 +75,7 @@ class MetsParser(DocumentParser):
         metadata = {}
         self._get_logical_structure(self._doc)
         self._get_metadata(self._doc)
-        
+
         logical_nodes = self._logical_structure.keys()
         logical_nodes.sort()
         dmd_id = self._logical_structure[logical_nodes[0]]['dmd_id']
@@ -85,10 +84,10 @@ class MetsParser(DocumentParser):
         metadata['creator'] = self._meta_data[dmd_id]['creator']
         metadata['language'] = self._meta_data[dmd_id]['language']
 
-        self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True, 
-                        indent=4))
+        self.logger.debug("Metadata: %s" % json.dumps(metadata, sort_keys=True,
+                                                      indent=4))
         return metadata
-    
+
     def get_logical_structure(self):
         """Get the logical structure of the Mets."""
         self._get_logical_structure(self._doc)
@@ -96,7 +95,7 @@ class MetsParser(DocumentParser):
         self._get_file_list(self._doc)
         self._get_physical_logical(self._doc)
         #logical_struct = {}
-        
+
         def get_parts(logic_struct):
             to_return = []
             nodes = logic_struct.keys()
@@ -104,67 +103,68 @@ class MetsParser(DocumentParser):
             for node in nodes:
                 url = None
                 self.logger.debug('Node: %s', logic_struct[node]['id'])
-                if self._relation.has_key(logic_struct[node]['id']):
+                if logic_struct[node]['id'] in self._relation:
                     phys_id = self._relation[logic_struct[node]['id']][0]
                     for _file in self._physical_structure[phys_id]['files']:
-                        if self._file_list.has_key(_file):
+                        if file in self._file_list:
                             url = self._file_list[_file]
                 to_return.append({
-                    'label' : logic_struct[node]['label'],
-                    'file_position' : {
-                        'index' : None,
-                        'url'   : url
+                    'label': logic_struct[node]['label'],
+                    'file_position': {
+                        'index': None,
+                        'url': url
                     }
                 })
-                if logic_struct[node].has_key('child'):
+                if 'child' in logic_struct[node]:
                     to_return[-1]['childs'] = \
                         get_parts(logic_struct[node]['child'])
             return to_return
 
-        #print self._logical_structure
-        if self._logical_structure[1].has_key('child'):
+        # print self._logical_structure
+        if 'child' in self._logical_structure[1]:
             logical_struct = get_parts(self._logical_structure[1]['child'])
         else:
             return None
-        self.logger.debug("Logical Structure: %s"% json.dumps(logical_struct,
-                sort_keys=True, indent=4))
-        #self.logger.debug("Physical Structure: %s"%
-        #json.dumps(self._physical_structure,
+        self.logger.debug("Logical Structure: %s" % json.dumps(logical_struct,
+                                                               sort_keys=True, indent=4))
+        # self.logger.debug("Physical Structure: %s"%
+        # json.dumps(self._physical_structure,
         #        sort_keys=True, indent=4))
-        #self.logger.debug("Phys2Log Structure: %s"%
-        #json.dumps(self._relation,
+        # self.logger.debug("Phys2Log Structure: %s"%
+        # json.dumps(self._relation,
         #        sort_keys=True, indent=4))
-        #self.logger.debug("FileList Structure: %s"% json.dumps(self._file_list,
+        # self.logger.debug("FileList Structure: %s"% json.dumps(self._file_list,
         #        sort_keys=True, indent=4))
         return logical_struct
-    
+
     def get_physical_structure(self):
         """Get the physical structure of the pdf."""
         self._get_physical_structure(self._doc)
         self._get_file_list(self._doc)
         phys_struct = []
         keys = self._physical_structure.keys()
+
         def phys_cmd(val1, val2):
             """Comparison method for sorting physical struct based on ORDER
                 field
             """
-            if not self._physical_structure.has_key(val1):
+            if val1 not in self._physical_structure:
                 return -1
-            if not self._physical_structure.has_key(val2):
+            if val2 not in self._physical_structure:
                 return +1
             return cmp(self._physical_structure[val1]['order'],
-                    self._physical_structure[val2]['order'])
+                       self._physical_structure[val2]['order'])
         keys.sort(phys_cmd)
         for k in keys:
             for f in self._physical_structure[k]['files']:
-                if self._file_list.has_key(f):
+                if f in self._file_list:
                     phys_struct.append({
-                      'url':  self._file_list[f],
-                      'label':
+                        'url':  self._file_list[f],
+                        'label':
                         self._file_list[f].split('/')[-1]
                     })
-        self.logger.debug("Physical Structure: %s"% json.dumps(phys_struct,
-                sort_keys=True, indent=4))
+        self.logger.debug("Physical Structure: %s" % json.dumps(phys_struct,
+                                                                sort_keys=True, indent=4))
         return phys_struct
 
     def _get_metadata(self, node):
@@ -180,7 +180,8 @@ class MetsParser(DocumentParser):
                 if m.hasAttributes() and m.getAttribute('MDTYPE') == 'MODS':
                     title_info = m.getElementsByTagNameNS(self._mods_namespace_URI, 'titleInfo')
                     if len(title_info) > 0:
-                        title = title_info[0].getElementsByTagNameNS(self._mods_namespace_URI, 'title')
+                        title = title_info[0].getElementsByTagNameNS(
+                            self._mods_namespace_URI, 'title')
                         if len(title) > 0:
                             self._meta_data[_id]['title'] = \
                                 title[0].firstChild.nodeValue.encode('utf-8')
@@ -189,36 +190,37 @@ class MetsParser(DocumentParser):
                     self._meta_data[_id]['language'] = ""
                     if len(language) > 0:
                         language_term = \
-                          language[0].getElementsByTagNameNS(self._mods_namespace_URI, 'languageTerm')
+                            language[0].getElementsByTagNameNS(
+                                self._mods_namespace_URI, 'languageTerm')
                         if len(language_term) > 0:
                             self._meta_data[_id]['language'] = \
-                              language_term[0].firstChild.nodeValue.encode('utf-8')
+                                language_term[0].firstChild.nodeValue.encode('utf-8')
 
                     name = m.getElementsByTagNameNS(self._mods_namespace_URI, 'name')
                     self._meta_data[_id]['creator'] = []
                     for n in name:
                         role = n.getElementsByTagNameNS(self._mods_namespace_URI, 'role')
                         if len(role) < 1 or \
-                          role[0].getElementsByTagNameNS(self._mods_namespace_URI, 'roleTerm')[0].firstChild.nodeValue.encode('utf-8') == 'aut':
-                            name_part = n.getElementsByTagNameNS(self._mods_namespace_URI, 'namePart')
+                                role[0].getElementsByTagNameNS(self._mods_namespace_URI, 'roleTerm')[0].firstChild.nodeValue.encode('utf-8') == 'aut':
+                            name_part = n.getElementsByTagNameNS(
+                                self._mods_namespace_URI, 'namePart')
                             first_name = ""
                             last_name = ""
                             for np in name_part:
                                 if not np.hasAttributes():
                                     complete_name = \
-                                      np.firstChild.nodeValue.encode('utf-8')
+                                        np.firstChild.nodeValue.encode('utf-8')
                                     self._meta_data[_id]['creator'].append(
-                                      "%s" % complete_name)
+                                        "%s" % complete_name)
                                 if np.getAttribute('type') == 'family':
                                     last_name = \
-                                      np.firstChild.nodeValue.encode('utf-8')
+                                        np.firstChild.nodeValue.encode('utf-8')
                                 if np.getAttribute('type') == 'given':
                                     first_name = \
-                                      np.firstChild.nodeValue.encode('utf-8')
+                                        np.firstChild.nodeValue.encode('utf-8')
                                 if last_name and first_name:
                                     self._meta_data[_id]['creator'].append(
-                                      "%s, %s" % (last_name, first_name))
-            
+                                        "%s, %s" % (last_name, first_name))
 
     def _get_logical_structure(self, node):
         self._logical_structure = {}
@@ -226,14 +228,14 @@ class MetsParser(DocumentParser):
         struct_map = node.getElementsByTagNameNS(self._namespace_URI, 'structMap')
         for sm in struct_map:
             if sm.hasAttributes() and \
-              sm.getAttribute('TYPE') == 'LOGICAL':
+                    sm.getAttribute('TYPE') == 'LOGICAL':
                 self._logical_structure = self._get_logical_nodes(sm, n)
                 return
 
     def _get_logical_nodes(self, node, n):
         to_return = {}
         div = node.childNodes
-        #print len(div)
+        # print len(div)
         for d in div:
             if d.localName == 'div':
                 order = n
@@ -259,19 +261,19 @@ class MetsParser(DocumentParser):
                         url = m.getAttribute('xlink:href')
                         external_docs.append(url)
                     to_return[order] = {
-                        'label' : label,
-                        'id' : _id,
-                        'dmd_id' : dmd_id,
-                        'external_docs' : external_docs
-                        }
+                        'label': label,
+                        'id': _id,
+                        'dmd_id': dmd_id,
+                        'external_docs': external_docs
+                    }
                 child_node = self._get_logical_nodes(d, n)
-                if to_return.has_key(order):
+                if order in to_return:
                     if len(child_node) > 0:
                         to_return[order]['child'] = child_node
                 else:
                     to_return = child_node
         return to_return
-    
+
     def _get_physical_structure(self, node):
         self._physical_structure = {}
         n = 0
@@ -296,8 +298,8 @@ class MetsParser(DocumentParser):
                             for f in f_ptr:
                                 files.append(f.getAttribute('FILEID'))
                             self._physical_structure[_id] = {
-                                'order' : order,
-                                'files' : files
+                                'order': order,
+                                'files': files
                             }
 
     def _get_file_list(self, node):
@@ -312,8 +314,8 @@ class MetsParser(DocumentParser):
                         _id = f.getAttribute('ID')
                         f_locat = f.getElementsByTagNameNS(self._namespace_URI, 'FLocat')
                         self._file_list[_id] = \
-                          f_locat[0].getAttribute('xlink:href')
-    
+                            f_locat[0].getAttribute('xlink:href')
+
     def _get_physical_logical(self, node):
         self._relation = {}
         struct_link = node.getElementsByTagNameNS(self._namespace_URI, 'structLink')
@@ -322,27 +324,27 @@ class MetsParser(DocumentParser):
             for sm in sm_link:
                 x_from = sm.getAttribute('xlink:from')
                 x_to = sm.getAttribute('xlink:to')
-                if not self._relation.has_key(x_from):
+                if x_from not in self._relation:
                     self._relation[x_from] = []
                 self._relation[x_from].append(x_to)
 
 
-#---------------------------- Main Part ---------------------------------------
+# ---------------------------- Main Part ---------------------------------------
 def main():
     """Main function"""
     usage = "usage: %prog [options]"
 
     parser = OptionParser(usage)
 
-    parser.set_description ("To test the Logger class.")
+    parser.set_description("To test the Logger class.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
     (options, args) = parser.parse_args()
 
@@ -354,6 +356,6 @@ def main():
     server = make_server('', options.port, application)
     server.serve_forever()
 
+
 if __name__ == '__main__':
     main()
-

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
@@ -18,7 +18,7 @@ __license__ = "GPL V.2"
 import logging
 
 # local modules
-import multivio.logger
+import multivio.logger as logger
 from mvo_config import MVOConfig
 
 # ----------------------------------- Exceptions --------------------------------

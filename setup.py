@@ -10,6 +10,7 @@ except ImportError:
     print('You need to install cython first - sudo pip install cython', file=sys.stderr)
     sys.exit(1)
 
+
 poppler_ext = Extension('multivio.poppler._mypoppler', ['multivio/poppler/mypoppler.pyx'],
                         language='c++',
                         extra_compile_args=['-I%s/include/poppler' % poppler_install_path],

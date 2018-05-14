@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import sys
@@ -23,9 +23,10 @@ else:
 from xml.dom.minidom import parseString
 
 # local modules
-from parser import DocumentParser, ParserError
+from multivio.parser import DocumentParser, ParserError
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
 
 class DublinCoreParser(DocumentParser):
     """To parse PDF document"""
@@ -53,7 +54,7 @@ class DublinCoreParser(DocumentParser):
         self._file_stream.seek(0)
         content_str = self._file_stream.read()
         doc = parseString(content_str)
-        
+
         records = doc.getElementsByTagName('collection')
 
         # get the id number of the first record
@@ -62,7 +63,7 @@ class DublinCoreParser(DocumentParser):
                 "XML/Dublin Core document should contains at lease one record!")
         if len(records) > 1:
             raise ParserError.InvalidDocument(
-                "XML/Dublin Core document should not contains more than "\
+                "XML/Dublin Core document should not contains more than "
                 "one record!")
         return records[0]
 
@@ -71,15 +72,15 @@ class DublinCoreParser(DocumentParser):
         record = self._get_record()
         metadata = {}
         metadata['title'] = self._get_values_for_labels(record,
-                'title')[0].decode('utf-8')
+                                                        'title')[0].decode('utf-8')
         metadata['creator'] = [v.decode('utf-8') for v in
-            self._get_values_for_labels(record, 'creator')]
+                               self._get_values_for_labels(record, 'creator')]
         metadata['language'] = self._get_values_for_labels(record,
-                'language')[0].decode('utf-8')
-        self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True, 
-                        indent=4))
+                                                           'language')[0].decode('utf-8')
+        self.logger.debug("Metadata: %s" % json.dumps(metadata, sort_keys=True,
+                                                      indent=4))
         return metadata
-    
+
     def get_physical_structure(self):
         """Get the physical structure of the pdf."""
         phys_struct = []
@@ -90,10 +91,9 @@ class DublinCoreParser(DocumentParser):
                 'url': url,
                 'label': url.split('/')[-1]
             })
-        self.logger.debug("Physical Structure: %s"% json.dumps(phys_struct,
-                sort_keys=True, indent=4))
+        self.logger.debug("Physical Structure: %s" % json.dumps(phys_struct,
+                                                                sort_keys=True, indent=4))
         return phys_struct
-
 
     def _get_values_for_labels(self, record, tag_name):
         """Return the value for a xml label."""
@@ -102,4 +102,3 @@ class DublinCoreParser(DocumentParser):
             if data_field.firstChild is not None:
                 res.append(data_field.firstChild.nodeValue.encode('utf-8'))
         return res
-

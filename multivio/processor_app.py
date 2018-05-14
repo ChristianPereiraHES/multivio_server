@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
@@ -21,11 +21,11 @@ else:
 
 # local modules
 from mvo_config import MVOConfig
-from web_app import WebApplication
+from multivio.web_app import WebApplication
 
-from pdf_processor import PdfProcessor
-from image_processor import ImageProcessor
-from web_app import ApplicationError
+from multivio.pdf_processor import PdfProcessor
+from multivio.image_processor import ImageProcessor
+from multivio.web_app import ApplicationError
 
 
 # ------------------ Classes ----------------------------
@@ -114,17 +114,17 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
 
         if re.search(r'document/render', path) is not None:
             self.logger.debug("Render file with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 max_width = max_height = output_format = None
                 page_nr = 1
                 angle = 0
-                if opts.has_key('max_height'):
+                if 'max_height' in opts:
                     max_height = int(opts['max_height'])
-                if opts.has_key('max_width'):
+                if 'max_width' in opts:
                     max_width = int(opts['max_width'])
-                if opts.has_key('angle'):
+                if 'angle' in opts:
                     angle = int(opts['angle'])
-                if opts.has_key('page_nr'):
+                if 'page_nr' in opts:
                     page_nr = int(opts['page_nr'])
                 (mime_type, data) = self.render(url=opts['url'],
                                                 max_output_size=(
@@ -137,9 +137,9 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 raise ApplicationError.InvalidArgument('Invalid Argument')
         if re.search(r'document/get_size', path) is not None:
             self.logger.debug("Get file size with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 page_nr = 1
-                if opts.has_key('page_nr'):
+                if 'page_nr' in opts:
                     page_nr = int(opts['page_nr'])
                 size = self.get_size(url=opts['url'],
                                      index={'page_number': page_nr})
@@ -151,22 +151,22 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
 
         if re.search(r'document/get_text', path) is not None:
             self.logger.debug("Get text with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 page_nr = 1
                 # round coordinates to 2 decimals
                 x1 = x2 = y1 = y2 = angle = 0
 
-                if opts.has_key('page_nr'):
+                if 'page_nr' in opts:
                     page_nr = int(opts['page_nr'] or 1)
-                if opts.has_key('x1'):
+                if 'x1' in opts:
                     x1 = round(float(opts['x1']), 2)
-                if opts.has_key('x2'):
+                if 'x2' in opts:
                     x2 = round(float(opts['x2']), 2)
-                if opts.has_key('y1'):
+                if 'y1' in opts:
                     y1 = round(float(opts['y1']), 2)
-                if opts.has_key('y2'):
+                if 'y2' in opts:
                     y2 = round(float(opts['y2']), 2)
-                if opts.has_key('angle'):
+                if 'angle' in opts:
                     angle = int(opts['angle'] or 0)
 
                 text_result = self.get_text(url=opts['url'],
@@ -180,13 +180,13 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
 
         if re.search(r'document/get_indexing', path) is not None:
             self.logger.debug("Get page index with opts: %s" % opts)
-            if opts.has_key('url'):
+            if 'url' in opts:
                 page_nr = from_ = to_ = None
-                if opts.has_key('page_nr'):
+                if 'page_nr' in opts:
                     page_nr = int(opts['page_nr'] or 1)
-                if opts.has_key('from'):
+                if 'from' in opts:
                     from_ = int(opts['from'] or 0)
-                if opts.has_key('to'):
+                if 'to' in opts:
                     to_ = int(opts['to'] or 0)
 
                 pages_index = self.get_indexing(url=opts['url'],
@@ -199,8 +199,8 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
 
         if re.search(r'document/search', path) is not None:
             self.logger.debug("Search document with opts: %s" % opts)
-            if opts.has_key('url'):
-                if not opts.has_key('query'):
+            if 'url' in opts:
+                if not 'query' in opts:
                     raise ApplicationError.InvalidArgument('Invalid Argument: "\
                             "param query missing')
 
@@ -213,17 +213,17 @@ If a range of pages is specified with 'from' and 'to', 'page_nr' is ignored. Els
                 to_ = max_results = sort = context_size = None
                 angle = 0
 
-                if opts.has_key('from'):
+                if 'from' in opts:
                     from_ = int(opts['from'] or 0)
-                if opts.has_key('to'):
+                if 'to' in opts:
                     to_ = int(opts['to'] or 0)
-                if opts.has_key('max_results'):
+                if 'max_results' in opts:
                     max_results = int(opts['max_results'] or 0)
-                if opts.has_key('sort'):
+                if 'sort' in opts:
                     sort = int(opts['sort'] or 0)
-                if opts.has_key('context_size'):
+                if 'context_size' in opts:
                     context_size = int(opts['context_size'] or 0)
-                if opts.has_key('angle'):
+                if 'angle' in opts:
                     angle = int(opts['angle'] or 0)
                 # get results
                 results = self.search(url, query, from_, to_, max_results,

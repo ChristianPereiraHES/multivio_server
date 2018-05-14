@@ -1,17 +1,18 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """ Apache config file for Multivio server."""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 
 import logging
+
 
 class MVOConfig:
 
@@ -22,7 +23,7 @@ class MVOConfig:
 
     class Url:
         user_agent = 'Firefox/3.5.2'
-        timeout = 120 #2 minutes
+        timeout = 120  # 2 minutes
 
     class Logger:
         name = "multivio"

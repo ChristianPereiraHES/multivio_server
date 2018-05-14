@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Logging module for the Multivio application."""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules -----------------------------------------
+# ---------------------------- Modules -----------------------------------------
 
 # import of standard modules
 from optparse import OptionParser
@@ -24,13 +24,14 @@ else:
     import json
 
 # local modules
-from web_app import WebApplication, ApplicationError
+from multivio.web_app import WebApplication, ApplicationError
 
 
-#---------------------------- Classes -----------------------------------------
+# ---------------------------- Classes -----------------------------------------
 
 class VersionApp(WebApplication):
     """Web application for logging"""
+
     def __init__(self):
         """Basic constructor"""
         WebApplication.__init__(self)
@@ -41,34 +42,34 @@ class VersionApp(WebApplication):
             "version" " : "0.0.1",
             "api_version" " : "0.1"
         }
-<br>"""
+        <br>"""
         self._api_version = "1.0.0"
         self._name = "Multivio Server"
-        import __init__
-        self._version = __init__.__version__
-    
+        from multivio import __init__
+        self._version = "TODO"
+
     def get(self, environ, start_response):
         """ Callback method for new http request.
-        
+
         """
-        #get parameters from the URI
+        # get parameters from the URI
         (path, opts) = self.get_params(environ)
 
-        #check if is valid
+        # check if is valid
         if re.search(r'version', path) is not None:
             to_return = {
-                "name": self._name,
-                "version": self._version,
-                "api_version": self._api_version
+                'name': self._name,
+                'version': self._version,
+                'api_version': self._api_version
             }
             start_response('200 OK', [('content-type',
-                'application/json')])
-            return ["%s" % json.dumps(to_return,  sort_keys=True, indent=2)]
+                                       'application/json')])
+            return [(json.dumps(to_return,  sort_keys=True, indent=2)).encode('utf-8')]
 
         raise ApplicationError.InvalidArgument("Invalid Argument")
 
 
-#---------------------------- Main Part ---------------------------------------
+# ---------------------------- Main Part ---------------------------------------
 
 def main():
     """Main function"""
@@ -76,15 +77,15 @@ def main():
 
     parser = OptionParser(usage)
 
-    parser.set_description ("To test the Logger class.")
+    parser.set_description("To test the Logger class.")
 
-    parser.add_option ("-v", "--verbose", dest="verbose",
-                       help="Verbose mode",
-                       action="store_true", default=False)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      help="Verbose mode",
+                      action="store_true", default=False)
 
-    parser.add_option ("-p", "--port", dest="port",
-                       help="Http Port (Default: 4041)",
-                       type="int", default=4041)
+    parser.add_option("-p", "--port", dest="port",
+                      help="Http Port (Default: 4041)",
+                      type="int", default=4041)
 
     (options, args) = parser.parse_args()
 
@@ -95,6 +96,7 @@ def main():
     application = VersionApp()
     server = make_server('', options.port, application)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """PDF Document Parser module for Multivio"""
 
@@ -21,7 +21,7 @@ from multivio.poppler import _mypoppler as poppler
 from optparse import OptionParser
 
 # local modules
-from parser import DocumentParser, ParserError
+from multivio.parser import DocumentParser, ParserError
 
 # ----------------------------------- Classes -----------------------------------
 
@@ -109,7 +109,7 @@ class PdfParser(DocumentParser):
             width = self._doc.getPageMediaWidth(page_nr)
             height = self._doc.getPageMediaHeight(page_nr)
             native_size = (width, height)
-            if pages.has_key(native_size):
+            if native_size in pages:
                 pages[native_size].append(page_nr)
             else:
                 pages[native_size] = [page_nr]
@@ -136,7 +136,7 @@ class PdfParser(DocumentParser):
                     'url': self._url
                 }
                 del entry['page_number']
-                if entry.has_key('childs'):
+                if 'childs ' in entry:
                     add_file_index(entry['childs'])
         add_file_index(toc)
         return toc

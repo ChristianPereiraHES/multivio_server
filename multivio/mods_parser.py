@@ -1,18 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Document Parser module for Multivio"""
 
-#==============================================================================
+# ==============================================================================
 #  This file is part of the Multivio software.
 #  Project  : Multivio - https://www.multivio.org/
 #  Copyright: (c) 2009-2011 RERO (http://www.rero.ch/)
 #  License  : See file COPYING
-#==============================================================================
+# ==============================================================================
 
 __copyright__ = "Copyright (c) 2009-2011 RERO"
 __license__ = "GPL V.2"
 
-#---------------------------- Modules ---------------------------------------
+# ---------------------------- Modules ---------------------------------------
 
 # import of standard modules
 import sys
@@ -23,9 +23,10 @@ else:
 from xml.dom.minidom import parseString
 
 # local modules
-from parser import DocumentParser, ParserError
+from multivio.parser import DocumentParser, ParserError
 
-#----------------------------------- Classes -----------------------------------
+# ----------------------------------- Classes -----------------------------------
+
 
 class ModsParser(DocumentParser):
     """To parse XMLMods document"""
@@ -53,7 +54,7 @@ class ModsParser(DocumentParser):
         self._file_stream.seek(0)
         content_str = self._file_stream.read()
         doc = parseString(content_str)
-        
+
         records = doc.getElementsByTagNameNS(self._namespace_URI, 'mods')
 
         # get the id number of the first record
@@ -62,7 +63,7 @@ class ModsParser(DocumentParser):
                 "XML/Mods Core document should contains at lease one record!")
         if len(records) > 1:
             raise ParserError.InvalidDocument(
-                "XML/Mods Core document should not contains more than "\
+                "XML/Mods Core document should not contains more than "
                 "one record!")
         return records[0]
 
@@ -93,10 +94,10 @@ class ModsParser(DocumentParser):
             if len(language) > 0:
                 metadata['language'] = \
                     language[0].firstChild.nodeValue.encode('utf-8')
-        self.logger.debug("Metadata: %s"% json.dumps(metadata, sort_keys=True, 
-                        indent=4))
+        self.logger.debug("Metadata: %s" % json.dumps(metadata, sort_keys=True,
+                                                      indent=4))
         return metadata
-    
+
     def get_physical_structure(self):
         """Get the physical structure of the pdf."""
         phys_struct = []
@@ -109,7 +110,7 @@ class ModsParser(DocumentParser):
             urls_info = location.getElementsByTagNameNS(self._namespace_URI, 'url')
             for url_info in urls_info:
                 if url_info.getAttribute('access').encode('utf-8') \
-                    == 'raw object':
+                        == 'raw object':
                     urls.append(url_info.firstChild.nodeValue.encode('utf-8'))
                     labels.append(
                         url_info.getAttribute('displayLabel').encode('utf-8'))
@@ -118,8 +119,6 @@ class ModsParser(DocumentParser):
                 'url': urls[i].decode('utf-8'),
                 'label': labels[i].decode('utf-8')
             })
-        self.logger.debug("Physical Structure: %s"% json.dumps(phys_struct,
-                sort_keys=True, indent=4))
+        self.logger.debug("Physical Structure: %s" % json.dumps(phys_struct,
+                                                                sort_keys=True, indent=4))
         return phys_struct
-
-
